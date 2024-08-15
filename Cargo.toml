@@ -1,0 +1,18 @@
+[package]
+name          = "kabto"
+version       = "0.1.0"
+edition       = "2021"
+authors       = ["kanarus <kanarus786@gmail.com>"]
+documentation = "https://docs.rs/kabto"
+homepage      = "https://crates.io/crates/kabto"
+repository    = "https://github.com/kana-rus/kabto"
+readme        = "README.md"
+license       = "MIT"
+description   = ""
+keywords      = []
+categories    = []
+
+[dependencies]
+web-sys = { version = "0.3" }
+
+litenum = "1.0"
