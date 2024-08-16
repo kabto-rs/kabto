@@ -13,5 +13,5 @@ keywords      = []
 categories    = []
 
 [dependencies]
-web-sys = { version = "0.3", features = ["Document", "Element", "Text"] }
-litenum = "1.0"
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "Text"] }
+litenum = "1.1"

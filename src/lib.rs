@@ -1,3 +1,13 @@
-#![allow(non_snake_case)]
+#![allow(
+    non_snake_case,
+    incomplete_features,
+)]
 
-mod element;
+#![feature(
+    generic_const_exprs,
+    const_trait_impl,
+    extend_one,
+)]
+
+pub mod element;
+mod util;
