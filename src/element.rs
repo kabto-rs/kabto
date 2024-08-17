@@ -19,6 +19,7 @@ const _: () = {
 };
 
 #[litenum::to]
+#[derive(std::marker::ConstParamTy, PartialEq, Eq)]
 pub enum Tag {
     TEXT_ELEMENT,
     div,
