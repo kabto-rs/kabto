@@ -11,7 +11,7 @@ pub type a   = Tag<{element::Tag::a}>;
 mod internal {
     pub struct Tag<const T: crate::element::Tag>;
 
-    pub struct Element
+    pub struct Element(crate::element::Element);
 
     macro_rules! props {
         ($($name:ident)*) => {
@@ -20,6 +20,13 @@ mod internal {
 
                 }
             )*}
+            impl Element {$(
+                pub fn $name(mut self, value: ) -> Element {
+
+                }
+            )*}
         };
+    } props! {
+
     }
 }
