@@ -1,3 +1,6 @@
+mod attributes;
+mod eventhandlers;
+
 use crate::vdom::Node;
 use crate::util::Text;
 

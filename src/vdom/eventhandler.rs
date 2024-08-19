@@ -3,7 +3,7 @@ use web_sys::wasm_bindgen::{closure::Closure, JsCast, JsValue};
 use wasm_bindgen_futures::spawn_local;
 
 
-pub(crate) struct EventHandler {
+pub(crate) struct eventHandler {
     class:   EventClass,
     handler: Box<dyn Fn(JsValue)>
 }
@@ -187,7 +187,7 @@ impl Event {
     }
 }
 
-impl EventHandler {
+impl eventHandler {
     pub(crate) fn into_wasm_closure(self) -> Closure<dyn Fn(JsValue)> {
         Closure::wrap(self.handler)
     }
@@ -197,70 +197,70 @@ impl EventHandler {
 ////////////////////////////////////////////////
 
 
-pub trait IntoEventHandler<T> {
-    fn into_event_handler(self) -> EventHandler;
+pub trait EventHandler<Ev, __> {
+    fn into_eventhandler(self) -> eventHandler;
 }
 
-const _: (/* without event */) = {
-    impl<F> IntoEventHandler<fn()> for F
-    where
-        F: Fn() + 'static
-    {
-        fn into_event_handler(self) -> EventHandler {
-            EventHandler {class:EventClass::Event,
-                handler: Box::new(move |_| self())
-            }
-        }
-    }
-    
-    impl<F> IntoEventHandler<fn()->Result<(), JsValue>> for F
-    where
-        F: Fn()->Result<(), JsValue> + 'static
-    {
-        fn into_event_handler(self) -> EventHandler {
-            EventHandler {class:EventClass::Event,
-                handler: Box::new(move |_| {
-                    if let Err(err) = self() {
-                        web_sys::console::log_1(&err)
-                    }
-                })
-            }
-        }
-    }
-    
-    impl<F, Fut> IntoEventHandler<fn()->((),)> for F
-    where
-        F:   Fn() -> Fut + 'static,
-        Fut: Future<Output = ()> + 'static
-    {
-        fn into_event_handler(self) -> EventHandler {
-            EventHandler {class:EventClass::Event,
-                handler: Box::new(move |_| spawn_local(
-                    self()
-                ))
-            }
-        }
-    }
-    
-    impl<F, Fut> IntoEventHandler<fn()->(Result<(), JsValue>,)> for F
-    where
-        F:   Fn() -> Fut + 'static,
-        Fut: Future<Output = Result<(), JsValue>> + 'static
-    {
-        fn into_event_handler(self) -> EventHandler {
-            EventHandler {class:EventClass::Event,
-                handler: Box::new(move |_| {
-                    let res = self();
-                    spawn_local(async {
-                        if let Err(err) = res.await {
-                            web_sys::console::log_1(&err)
-                        }
-                    })
-                })
-            }
-        }
-    }
-};
+// const _: (/* without event */) = {
+//     impl<F> EventHandler<fn()> for F
+//     where
+//         F: Fn() + 'static
+//     {
+//         fn into_eventhandler(self) -> eventHandler {
+//             eventHandler {class:EventClass::Event,
+//                 handler: Box::new(move |_| self())
+//             }
+//         }
+//     }
+//     
+//     impl<F> EventHandler<fn()->Result<(), JsValue>> for F
+//     where
+//         F: Fn()->Result<(), JsValue> + 'static
+//     {
+//         fn into_eventhandler(self) -> eventHandler {
+//             eventHandler {class:EventClass::Event,
+//                 handler: Box::new(move |_| {
+//                     if let Err(err) = self() {
+//                         web_sys::console::log_1(&err)
+//                     }
+//                 })
+//             }
+//         }
+//     }
+//     
+//     impl<F, Fut> EventHandler<fn()->((),)> for F
+//     where
+//         F:   Fn() -> Fut + 'static,
+//         Fut: Future<Output = ()> + 'static
+//     {
+//         fn into_eventhandler(self) -> eventHandler {
+//             eventHandler {class:EventClass::Event,
+//                 handler: Box::new(move |_| spawn_local(
+//                     self()
+//                 ))
+//             }
+//         }
+//     }
+//     
+//     impl<F, Fut> EventHandler<fn()->(Result<(), JsValue>,)> for F
+//     where
+//         F:   Fn() -> Fut + 'static,
+//         Fut: Future<Output = Result<(), JsValue>> + 'static
+//     {
+//         fn into_eventhandler(self) -> eventHandler {
+//             eventHandler {class:EventClass::Event,
+//                 handler: Box::new(move |_| {
+//                     let res = self();
+//                     spawn_local(async {
+//                         if let Err(err) = res.await {
+//                             web_sys::console::log_1(&err)
+//                         }
+//                     })
+//                 })
+//             }
+//         }
+//     }
+// };
 
 const _: (/* with event */) = {
     pub trait EventObject: JsCast {
@@ -302,26 +302,26 @@ const _: (/* with event */) = {
         }
     };
 
-    impl<F, E> IntoEventHandler<fn(E)> for F
+    impl<F, E> EventHandler<E, fn(E)> for F
     where
         F: Fn(E) + 'static,
         E: EventObject
     {
-        fn into_event_handler(self) -> EventHandler {
-            EventHandler {   
+        fn into_eventhandler(self) -> eventHandler {
+            eventHandler {   
                 class:   E::CLASS,
                 handler: Box::new(move |js_value| self(E::unchecked_from_js(js_value)))
             }
         }
     }
 
-    impl<F, E> IntoEventHandler<fn(E)->Result<(), JsValue>> for F
+    impl<F, E> EventHandler<E, fn(E)->Result<(), JsValue>> for F
     where
         F: Fn(E)->Result<(), JsValue> + 'static,
         E: EventObject
     {
-        fn into_event_handler(self) -> EventHandler {
-            EventHandler {
+        fn into_eventhandler(self) -> eventHandler {
+            eventHandler {
                 class:   E::CLASS,
                 handler: Box::new(move |js_value| {
                     if let Err(err) = self(E::unchecked_from_js(js_value)) {
@@ -332,14 +332,14 @@ const _: (/* with event */) = {
         }
     }
 
-    impl<F, Fut, E> IntoEventHandler<fn(E)->((),)> for F
+    impl<F, Fut, E> EventHandler<E, fn(E)->((),)> for F
     where
         F:   Fn(E) -> Fut + 'static,
         Fut: Future<Output = ()> + 'static,
         E:   EventObject
     {
-        fn into_event_handler(self) -> EventHandler {
-            EventHandler {
+        fn into_eventhandler(self) -> eventHandler {
+            eventHandler {
                 class:   E::CLASS,
                 handler: Box::new(move |js_value| spawn_local(
                     self(E::unchecked_from_js(js_value))
@@ -348,14 +348,14 @@ const _: (/* with event */) = {
         }
     }
 
-    impl<F, Fut, E> IntoEventHandler<fn(E)->(Result<(), JsValue>,)> for F
+    impl<F, Fut, E> EventHandler<E, fn(E)->(Result<(), JsValue>,)> for F
     where
         F:   Fn(E) -> Fut + 'static,
         Fut: Future<Output = Result<(), JsValue>> + 'static,
         E:   EventObject
     {
-        fn into_event_handler(self) -> EventHandler {
-            EventHandler {
+        fn into_eventhandler(self) -> eventHandler {
+            eventHandler {
                 class:   E::CLASS,
                 handler: Box::new(move |js_value| {
                     let res = self(E::unchecked_from_js(js_value));

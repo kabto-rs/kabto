@@ -1,7 +1,7 @@
 pub(crate) mod eventhandler;
 
 use crate::util::Text;
-use self::eventhandler::EventHandler;
+use self::eventhandler::eventHandler;
 use std::{borrow::Cow, collections::HashMap};
 use web_sys::wasm_bindgen::{JsValue, JsCast};
 
@@ -14,7 +14,7 @@ pub enum Node {
 pub struct Element {
     pub(crate) tag:           &'static str,
     pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
-    pub(crate) eventhandlers: Option<Box<HashMap<&'static str, EventHandler>>>,
+    pub(crate) eventhandlers: Option<Box<HashMap<&'static str, eventHandler>>>,
     pub(crate) children:      Vec<Node>
 }
 
