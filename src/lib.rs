@@ -13,5 +13,4 @@
 )]
 
 mod dsl;
-mod util;
 mod vdom;

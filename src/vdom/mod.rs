@@ -1,4 +1,4 @@
-mod eventhandler;
+pub(crate) mod eventhandler;
 
 use self::eventhandler::EventHandler;
 use std::{borrow::Cow, collections::HashMap};
@@ -9,11 +9,36 @@ pub enum Element {
     Text(Cow<'static, str>),
     Tag {
         name:          &'static str,
-        attributes:    HashMap<&'static str, Cow<'static, str>>,
+        attributes:    HashMap<&'static str, AttributeValue>,
         eventhandlers: HashMap<&'static str, EventHandler>,
         children:      Vec<Element>
     }
 }
+
+pub struct AttributeValue(
+    Cow<'static, str>
+); const _: () = {
+    impl From<String> for AttributeValue {
+        fn from(value: String) -> Self {
+            Self(value.to_string().into())
+        }
+    }
+    impl From<&'static str> for AttributeValue {
+        fn from(value: &'static str) -> Self {
+            Self(value.into())
+        }
+    }
+
+    macro_rules! integer_value {
+        ($($t:ty)*) => {$(
+            impl From<$t> for AttributeValue {
+                fn from(value: $t) -> Self {
+                    Self(value.to_string().into())
+                }
+            }
+        )*};
+    } integer_value! { u8 usize i32 }
+};
 
 impl Element {
     pub fn csr(self, container: &web_sys::Node) -> Result<(), JsValue> {
@@ -27,7 +52,7 @@ impl Element {
             Element::Tag { name, attributes, eventhandlers, children } => {
                 let node = document.create_element(name)?; {
                     for (name, value) in attributes {
-                        node.set_attribute(name, &value)?;
+                        node.set_attribute(name, &value.0)?;
                     }
                     for (event, handler) in eventhandlers {
                         let handler = handler.into_wasm_closure();
