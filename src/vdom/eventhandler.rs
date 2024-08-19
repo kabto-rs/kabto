@@ -1,14 +1,14 @@
 use std::future::Future;
-use web_sys::wasm_bindgen::{JsValue, closure::Closure};
+use web_sys::wasm_bindgen::{closure::Closure, JsCast, JsValue};
 use wasm_bindgen_futures::spawn_local;
 
 
 pub(crate) struct EventHandler {
     class:   EventClass,
-    handler: Box<dyn Fn(EventObject)>
+    handler: Box<dyn Fn(JsValue)>
 }
 
-enum EventClass {
+pub enum EventClass {
     Animation,
     Mouse,
     Pointer,
@@ -20,24 +20,6 @@ enum EventClass {
     Transition,
     Wheel,
     Event
-}
-
-pub enum EventObject {
-    Animation(web_sys::AnimationEvent),
-    Composition(web_sys::CompositionEvent),
-    Error(web_sys::ErrorEvent),
-    Event(web_sys::Event),
-    Focus(web_sys::FocusEvent),
-    Input(web_sys::InputEvent),
-    Keyboard(web_sys::KeyboardEvent),
-    Mouse(web_sys::MouseEvent),
-    Pointer(web_sys::PointerEvent),
-    Progress(web_sys::ProgressEvent),
-    Touch(web_sys::TouchEvent),
-    Transition(web_sys::TransitionEvent),
-    Ui(web_sys::UiEvent),
-    Wheel(web_sys::WheelEvent),
-    Submit(web_sys::SubmitEvent),
 }
 
 #[litenum::to]
@@ -110,12 +92,17 @@ pub enum Event {
 
     // Event
     beforematch,
+    change,
     fullscreenchange,
     fullscreenerror,
     input,
+    load,
     scroll,
     scrollend,
 }
+
+
+//////////////////////////////////////////////////////////////
 
 
 impl Event {
@@ -188,9 +175,11 @@ impl Event {
             => EventClass::Wheel,
 
             | Event::beforematch
+            | Event::change
             | Event::fullscreenchange
             | Event::fullscreenerror
             | Event::input
+            | Event::load
             | Event::scroll
             | Event::scrollend
             => EventClass::Event,
@@ -200,19 +189,7 @@ impl Event {
 
 impl EventHandler {
     pub(crate) fn into_wasm_closure(self) -> Closure<dyn Fn(JsValue)> {
-        Closure::wrap(Box::new(move |js_value| (self.handler)(match self.class {
-            EventClass::Animation   => EventObject::Animation(js_value.into()),
-            EventClass::Mouse       => EventObject::Mouse(js_value.into()),
-            EventClass::Pointer     => EventObject::Pointer(js_value.into()),
-            EventClass::Input       => EventObject::Input(js_value.into()),
-            EventClass::Focus       => EventObject::Focus(js_value.into()),
-            EventClass::Composition => EventObject::Composition(js_value.into()),
-            EventClass::Keyboard    => EventObject::Keyboard(js_value.into()),
-            EventClass::Touch       => EventObject::Touch(js_value.into()),
-            EventClass::Transition  => EventObject::Transition(js_value.into()),
-            EventClass::Wheel       => EventObject::Wheel(js_value.into()),
-            EventClass::Event       => EventObject::Event(js_value.into())
-        })))
+        Closure::wrap(self.handler)
     }
 }
 
@@ -251,7 +228,7 @@ const _: (/* without event */) = {
         }
     }
     
-    impl<F, Fut> IntoEventHandler<fn()->(Fut, ())> for F
+    impl<F, Fut> IntoEventHandler<fn()->((),)> for F
     where
         F:   Fn() -> Fut + 'static,
         Fut: Future<Output = ()> + 'static
@@ -265,7 +242,7 @@ const _: (/* without event */) = {
         }
     }
     
-    impl<F, Fut> IntoEventHandler<fn()->(Fut, Result<(), JsValue>)> for F
+    impl<F, Fut> IntoEventHandler<fn()->(Result<(), JsValue>,)> for F
     where
         F:   Fn() -> Fut + 'static,
         Fut: Future<Output = Result<(), JsValue>> + 'static
@@ -285,4 +262,110 @@ const _: (/* without event */) = {
     }
 };
 
+const _: (/* with event */) = {
+    pub trait EventObject: JsCast {
+        const CLASS: EventClass;
+    }
+    const _: () = {
+        impl EventObject for web_sys::Event {
+            const CLASS: EventClass = EventClass::Event;
+        }
+        impl EventObject for web_sys::AnimationEvent {
+            const CLASS: EventClass = EventClass::Animation;
+        }
+        impl EventObject for web_sys::CompositionEvent {
+            const CLASS: EventClass = EventClass::Composition;
+        }
+        impl EventObject for web_sys::FocusEvent {
+            const CLASS: EventClass = EventClass::Focus;
+        }
+        impl EventObject for web_sys::InputEvent {
+            const CLASS: EventClass = EventClass::Input;
+        }
+        impl EventObject for web_sys::KeyboardEvent {
+            const CLASS: EventClass = EventClass::Keyboard;
+        }
+        impl EventObject for web_sys::MouseEvent {
+            const CLASS: EventClass = EventClass::Mouse;
+        }
+        impl EventObject for web_sys::PointerEvent {
+            const CLASS: EventClass = EventClass::Pointer;
+        }
+        impl EventObject for web_sys::TouchEvent {
+            const CLASS: EventClass = EventClass::Touch;
+        }
+        impl EventObject for web_sys::TransitionEvent {
+            const CLASS: EventClass = EventClass::Transition;
+        }
+        impl EventObject for web_sys::WheelEvent {
+            const CLASS: EventClass = EventClass::Wheel;
+        }
+    };
 
+    impl<F, E> IntoEventHandler<fn(E)> for F
+    where
+        F: Fn(E) + 'static,
+        E: EventObject
+    {
+        fn into_event_handler(self) -> EventHandler {
+            EventHandler {   
+                class:   E::CLASS,
+                handler: Box::new(move |js_value| self(E::unchecked_from_js(js_value)))
+            }
+        }
+    }
+
+    impl<F, E> IntoEventHandler<fn(E)->Result<(), JsValue>> for F
+    where
+        F: Fn(E)->Result<(), JsValue> + 'static,
+        E: EventObject
+    {
+        fn into_event_handler(self) -> EventHandler {
+            EventHandler {
+                class:   E::CLASS,
+                handler: Box::new(move |js_value| {
+                    if let Err(err) = self(E::unchecked_from_js(js_value)) {
+                        web_sys::console::log_1(&err)
+                    }
+                })
+            }
+        }
+    }
+
+    impl<F, Fut, E> IntoEventHandler<fn(E)->((),)> for F
+    where
+        F:   Fn(E) -> Fut + 'static,
+        Fut: Future<Output = ()> + 'static,
+        E:   EventObject
+    {
+        fn into_event_handler(self) -> EventHandler {
+            EventHandler {
+                class:   E::CLASS,
+                handler: Box::new(move |js_value| spawn_local(
+                    self(E::unchecked_from_js(js_value))
+                ))
+            }
+        }
+    }
+
+    impl<F, Fut, E> IntoEventHandler<fn(E)->(Result<(), JsValue>,)> for F
+    where
+        F:   Fn(E) -> Fut + 'static,
+        Fut: Future<Output = Result<(), JsValue>> + 'static,
+        E:   EventObject
+    {
+        fn into_event_handler(self) -> EventHandler {
+            EventHandler {
+                class:   E::CLASS,
+                handler: Box::new(move |js_value| {
+                    let res = self(E::unchecked_from_js(js_value));
+                    spawn_local(async {
+                        if let Err(err) = res.await {
+                            web_sys::console::log_1(&err)
+                        }
+                    })
+                })
+            }
+        }
+    }
+};

@@ -16,7 +16,7 @@ pub enum Element {
 }
 
 impl Element {
-    pub fn CSR(self, container: &web_sys::Node) -> Result<(), JsValue> {
+    pub fn csr(self, container: &web_sys::Node) -> Result<(), JsValue> {
         let document = web_sys::window().unwrap().document().unwrap();
 
         match self {
@@ -35,7 +35,7 @@ impl Element {
                         handler.forget();
                     }
                     for child in children {
-                        child.CSR(container)?;
+                        child.csr(container)?;
                     }
                 }
                 container.append_child(&node)?;

@@ -25,18 +25,14 @@ features = [
     # events
     "AnimationEvent",
     "CompositionEvent",
-    "ErrorEvent",
     "FocusEvent",
     "InputEvent",
     "KeyboardEvent",
     "MouseEvent",
     "PointerEvent",
-    "ProgressEvent",
     "TouchEvent",
     "TransitionEvent",
-    "UiEvent",
     "WheelEvent",
-    "SubmitEvent",
 ]
 
 [dependencies.wasm-bindgen-futures]
