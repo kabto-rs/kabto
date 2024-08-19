@@ -5,14 +5,16 @@ use std::{borrow::Cow, collections::HashMap};
 use web_sys::wasm_bindgen::{JsValue, JsCast};
 
 
-pub enum Element {
+pub enum Node {
     Text(Cow<'static, str>),
-    Tag {
-        name:          &'static str,
-        attributes:    HashMap<&'static str, AttributeValue>,
-        eventhandlers: HashMap<&'static str, EventHandler>,
-        children:      Vec<Element>
-    }
+    Element(Element),
+}
+
+pub struct Element {
+    pub(crate) tag:           &'static str,
+    pub(crate) attributes:    HashMap<&'static str, AttributeValue>,
+    pub(crate) eventhandlers: HashMap<&'static str, EventHandler>,
+    pub(crate) children:      Vec<Node>
 }
 
 pub struct AttributeValue(
@@ -40,17 +42,17 @@ pub struct AttributeValue(
     } integer_value! { u8 usize i32 }
 };
 
-impl Element {
+impl Node {
     pub fn csr(self, container: &web_sys::Node) -> Result<(), JsValue> {
         let document = web_sys::window().unwrap().document().unwrap();
 
         match self {
-            Element::Text(text) => {
+            Node::Text(text) => {
                 let node = document.create_text_node(&text);
                 container.append_child(&node)?;
             }
-            Element::Tag { name, attributes, eventhandlers, children } => {
-                let node = document.create_element(name)?; {
+            Node::Element(Element { tag, attributes, eventhandlers, children }) => {
+                let node = document.create_element(tag)?; {
                     for (name, value) in attributes {
                         node.set_attribute(name, &value.0)?;
                     }

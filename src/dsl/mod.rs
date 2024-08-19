@@ -31,3 +31,42 @@
 //     }
 // }
 // 
+
+
+
+use crate::vdom::{Node, Element};
+
+
+pub trait IntoNode {
+    fn into_node(self) -> Node;
+}
+
+pub trait NodeCollection: std::marker::Tuple {
+    const N: usize;
+    fn collect(self) -> [Node; Self::N];
+}
+
+
+//////////////////////////////////////////////
+
+
+impl IntoNode for Node {
+    fn into_node(self) -> Node {self}
+}
+
+impl<Children: NodeCollection> FnOnce<Children> for Node
+where [(); Children::N]:
+{
+    type Output = Node;
+    extern "rust-call" fn call_once(self, children: Children) -> Self::Output {
+        let Node::Element(mut element) = self else {unreachable!()};
+        element.children.extend(children.collect());
+        Node::Element(element)
+    }
+}
+
+
+//////////////////////////////////////////////
+
+
+pub struct div;

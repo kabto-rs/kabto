@@ -10,6 +10,9 @@
     extend_one,
     adt_const_params,
     variant_count,
+    tuple_trait,
+    fn_traits,
+    unboxed_closures,
 )]
 
 mod dsl;
