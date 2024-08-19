@@ -17,3 +17,4 @@
 
 mod dsl;
 mod vdom;
+mod util;

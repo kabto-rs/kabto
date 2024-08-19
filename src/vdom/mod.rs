@@ -1,5 +1,6 @@
 pub(crate) mod eventhandler;
 
+use crate::util::Text;
 use self::eventhandler::EventHandler;
 use std::{borrow::Cow, collections::HashMap};
 use web_sys::wasm_bindgen::{JsValue, JsCast};
@@ -12,35 +13,21 @@ pub enum Node {
 
 pub struct Element {
     pub(crate) tag:           &'static str,
-    pub(crate) attributes:    HashMap<&'static str, AttributeValue>,
-    pub(crate) eventhandlers: HashMap<&'static str, EventHandler>,
+    pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
+    pub(crate) eventhandlers: Option<Box<HashMap<&'static str, EventHandler>>>,
     pub(crate) children:      Vec<Node>
 }
 
-pub struct AttributeValue(
-    Cow<'static, str>
-); const _: () = {
-    impl From<String> for AttributeValue {
-        fn from(value: String) -> Self {
-            Self(value.to_string().into())
-        }
+impl Node {
+    pub(crate) const fn new_element(tag: &'static str) -> Self {
+        Self::Element(Element {
+            tag,
+            attributes:    None,
+            eventhandlers: None,
+            children:      Vec::new()
+        })
     }
-    impl From<&'static str> for AttributeValue {
-        fn from(value: &'static str) -> Self {
-            Self(value.into())
-        }
-    }
-
-    macro_rules! integer_value {
-        ($($t:ty)*) => {$(
-            impl From<$t> for AttributeValue {
-                fn from(value: $t) -> Self {
-                    Self(value.to_string().into())
-                }
-            }
-        )*};
-    } integer_value! { u8 usize i32 }
-};
+}
 
 impl Node {
     pub fn csr(self, container: &web_sys::Node) -> Result<(), JsValue> {
@@ -53,13 +40,17 @@ impl Node {
             }
             Node::Element(Element { tag, attributes, eventhandlers, children }) => {
                 let node = document.create_element(tag)?; {
-                    for (name, value) in attributes {
-                        node.set_attribute(name, &value.0)?;
+                    if let Some(attributes) = attributes {                        
+                        for (name, value) in *attributes {
+                            node.set_attribute(name, &value)?;
+                        }
                     }
-                    for (event, handler) in eventhandlers {
-                        let handler = handler.into_wasm_closure();
-                        node.add_event_listener_with_callback(event, handler.as_ref().unchecked_ref())?;
-                        handler.forget();
+                    if let Some(eventhandlers) = eventhandlers {                        
+                        for (event, handler) in *eventhandlers {
+                            let handler = handler.into_wasm_closure();
+                            node.add_event_listener_with_callback(event, handler.as_ref().unchecked_ref())?;
+                            handler.forget();
+                        }
                     }
                     for child in children {
                         child.csr(container)?;
