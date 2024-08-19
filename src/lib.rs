@@ -9,8 +9,9 @@
     const_trait_impl,
     extend_one,
     adt_const_params,
+    variant_count,
 )]
 
-pub mod element;
 mod dsl;
 mod util;
+mod vdom;

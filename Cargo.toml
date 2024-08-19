@@ -12,6 +12,35 @@ description   = ""
 keywords      = []
 categories    = []
 
-[dependencies]
-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "Text"] }
-litenum = "1.1"
+[dependencies.web-sys]
+version  = "0.3"
+features = [
+    # core features
+    "Window",
+    "Document",
+    "Element",
+    "Text",
+    "console",
+
+    # events
+    "AnimationEvent",
+    "CompositionEvent",
+    "ErrorEvent",
+    "FocusEvent",
+    "InputEvent",
+    "KeyboardEvent",
+    "MouseEvent",
+    "PointerEvent",
+    "ProgressEvent",
+    "TouchEvent",
+    "TransitionEvent",
+    "UiEvent",
+    "WheelEvent",
+    "SubmitEvent",
+]
+
+[dependencies.wasm-bindgen-futures]
+version  = "0.4"
+
+[dependencies.litenum]
+version  = "1.1"
