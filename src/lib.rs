@@ -17,3 +17,5 @@
 
 mod dsl;
 mod vdom;
+
+pub use dsl::{tag, nodes::*};

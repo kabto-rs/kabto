@@ -60,7 +60,7 @@ pub struct Element<const TAG: Tag> {
 
 #[derive(std::marker::ConstParamTy, PartialEq, Eq)]
 #[litenum::to]
-pub(crate) enum Tag {
+pub enum Tag {
     ANY,
 
     a,
@@ -194,17 +194,6 @@ impl<const TAG: Tag> Element<TAG> {
     pub(crate) fn into_node(self) -> Node {
         let this: Element<{Tag::ANY}> = unsafe {std::mem::transmute(self)};
         Node::Element(this)
-    }
-}
-
-impl Node {
-    pub(crate) const fn new_element(tag: &'static str) -> Self {
-        Self::Element(Element {
-            tag,
-            attributes:    None,
-            eventhandlers: None,
-            children:      Vec::new()
-        })
     }
 }
 

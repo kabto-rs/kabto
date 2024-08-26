@@ -1,23 +1,26 @@
-mod nodes;
 mod attributes;
 mod eventhandlers;
 
-use crate::vdom::{Element, Tag};
+pub mod nodes;
 
 
 macro_rules! tag {
     ($($name:ident),* $(,)?) => {
-        #[cfg(debug_assertions)]
-        fn __assert_exaustive__(tag: Tag) {
-            match tag {
-                $( Tag::$name | )* Tag::ANY => ()
+        pub mod tag {
+            use crate::vdom::{Element, Tag};
+            
+            #[cfg(debug_assertions)]
+            fn __assert_exaustive__(tag: Tag) {
+                match tag {
+                    $( Tag::$name | )* Tag::ANY => ()
+                }
             }
-        }
 
-        $(
-            #[allow(non_upper_case_globals)]
-            pub const $name: Element<{Tag::$name}> = Element::new();
-        )*
+            $(
+                #[allow(non_upper_case_globals)]
+                pub const $name: Element<{Tag::$name}> = Element::new();
+            )*
+        }
     };
 } tag! {
     a,

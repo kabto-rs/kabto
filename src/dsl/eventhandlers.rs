@@ -11,11 +11,6 @@ macro_rules! register_eventhandlers {
             $handler2:ident: $event_name2:ident $event_object2:ident;
         )*})*
     ) => {
-        // #[cfg(debug_assertions)]
-        // fn __assert_exaustive__(e: Event) {
-        //     match e {$(| Event::$event_name => (),)*}
-        // }
-
         impl<const T: Tag> Element<T> {$(
             pub fn $handler<__>(mut self, f: impl EventHandler<web_sys::$event_object, __>) -> Self {
                 if self.eventhandlers.is_none() {
