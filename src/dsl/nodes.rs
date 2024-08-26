@@ -24,10 +24,6 @@ impl Nodes {
     }
 }
 
-
-//////////////////////////////////////////////
-
-
 impl<const TAG: Tag> IntoNodes for Element<TAG> {
     fn into_nodes(self) -> Nodes {
         Nodes::Some(self.into_node())
@@ -72,6 +68,15 @@ impl<Children: NodeCollection> FnOnce<Children> for Node {
             nodes.join_into(&mut element.children);
         }
         Node::Element(element)
+    }
+}
+impl<const T: Tag, Children: NodeCollection> FnOnce<Children> for Element<T> {
+    type Output = Node;
+    extern "rust-call" fn call_once(mut self, children: Children) -> Self::Output {
+        for nodes in children.collect() {
+            nodes.join_into(&mut self.children);
+        }
+        self.into_node()
     }
 }
 
