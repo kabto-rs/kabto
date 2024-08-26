@@ -1,45 +1,23 @@
-use kabto::tag::*;
+use kabto::{tag, document};
 
 fn app() -> impl kabto::Component {
-    //div.abbr("")
-    div
+    (
+        tag::h1("Kabto app"),
+        tag::div.id("app")(
+            tag::p(
+                "GitHub repo: ",
+                tag::a
+                    .href("https://github.com/ohkami-rs/kabto")
+                    .target_blank()
+                    (
+                        "https://github.com/ohkami-rs/kabto"
+                    )
+            )
+        )
+    )
 }
 
 fn main() {
-    fn type_params() {
-        struct S<T>(T);
-        
-        impl S<usize> {
-            fn a(&self) {}
-        }
-        
-        impl S<String> {
-            fn b(&self) {}
-        }
-        
-        impl<T> S<T> {
-            fn c(&self) {}
-        }
-        
-        let v: S<()> = S(());
-        v.c();
-    }
-    fn const_params() {
-        struct S<const C: usize>;
-        
-        impl S<0> {
-            fn a(&self) {}
-        }
-        
-        impl S<1> {
-            fn b(&self) {}
-        }
-        
-        impl<const C: usize> S<C> {
-            fn c(&self) {}
-        }
-        
-        let v: S<0> = S;
-        v.a();
-    }
+    let root = document().get_element_by_id("root").unwrap();
+    kabto::render(app(), &root).unwrap()
 }

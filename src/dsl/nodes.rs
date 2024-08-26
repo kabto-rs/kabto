@@ -79,6 +79,15 @@ impl<T: Tag, Children: NodeCollection> FnOnce<Children> for Element<T> {
         self.into_node()
     }
 }
+impl<NC: NodeCollection> IntoNodes for NC {
+    fn into_nodes(self) -> Nodes {
+        let mut collection = Vec::new();
+        for nodes in self.collect() {
+            nodes.join_into(&mut collection)
+        }
+        Nodes::Many(collection)
+    }
+}
 
 macro_rules! NodeCollection {
     ($($node:ident),*; $n:literal) => {
