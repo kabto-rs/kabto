@@ -231,7 +231,7 @@ impl Node {
                         }
                     }
                     for child in children {
-                        child.render_to(container)?;
+                        child.render_to(&node)?;
                     }
                 }
                 container.append_child(&node)?;

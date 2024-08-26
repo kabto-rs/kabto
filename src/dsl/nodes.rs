@@ -50,6 +50,15 @@ impl<IN: IntoNodes> IntoNodes for Vec<IN> {
         )
     }
 }
+impl<NC: NodeCollection> IntoNodes for NC {
+    fn into_nodes(self) -> Nodes {
+        let mut collection = Vec::new();
+        for nodes in self.collect() {
+            nodes.join_into(&mut collection)
+        }
+        Nodes::Many(collection)
+    }
+}
 macro_rules! TextNode {
     ($($text:ty),*) => {$(
         impl IntoNodes for $text {
@@ -77,15 +86,6 @@ impl<T: Tag, Children: NodeCollection> FnOnce<Children> for Element<T> {
             nodes.join_into(&mut self.children);
         }
         self.into_node()
-    }
-}
-impl<NC: NodeCollection> IntoNodes for NC {
-    fn into_nodes(self) -> Nodes {
-        let mut collection = Vec::new();
-        for nodes in self.collect() {
-            nodes.join_into(&mut collection)
-        }
-        Nodes::Many(collection)
     }
 }
 
