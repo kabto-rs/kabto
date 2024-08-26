@@ -175,6 +175,34 @@ macro_rules! keyvalue {
         value,
         width,
     }
+    ins {
+        cite,
+        datetime,
+    }
+    label {
+        for_ for "for",
+    }
+    li {
+        value
+    }
+    link {
+        href,
+        hreflang,
+        imagesizes,
+        imagesecret,
+        integrity,
+        media,
+        rel,
+        sizes,
+        type_ for "type"
+    }
+    map {
+        name
+    }
+    meta {
+        content,
+        name
+    }
 }
 
 
@@ -261,6 +289,9 @@ macro_rules! boolean {
         multiple,
         readonly,
         required,
+    }
+    link {
+        disabled,
     }
 }
 
@@ -510,6 +541,46 @@ macro_rules! enumerated {
             type_time("time")
             type_url("url")
             type_week("week")
+        ]
+    }
+    link {
+        as [
+            as_audio("audio")
+            as_document("document")
+            as_embed("embed")
+            as_fetch("fetch")
+            as_font("font")
+            as_image("image")
+            as_object("object")
+            as_script("script")
+            as_style("style")
+            as_track("track")
+            as_video("video")
+            as_worker("worker")
+        ]
+        crossorigin [
+            crossorigin_anonymous("anonymous")
+            crossorigin_use_credentials("use-credentials")
+        ]
+        fetchpriority [
+            fetchpriority_high("high")
+            fetchpriority_low("low")
+            fetchpriority_auto("auto")
+        ]
+        referrerpolicy [
+            referrerpolicy_no_referrer("no-referrer")
+            referrerpolicy_no_referrer_when_downgrade("no-referrer-when-downgrade")
+            referrerpolicy_origin("origin")
+            referrerpolicy_origin_when_crossorigin("origin-when-cross-origin")
+            referrerpolicy_same_origin("same-origin")
+            referrerpolicy_strict_origin("strict-origin")
+            referrerpolicy_strict_origin_when_cross_origin("strict-origin-when-cross-origin")
+            referrerpolicy_unsafe_url("unsafe-url")
+        ]
+    }
+    meta {
+        charset [
+            charset_utf8("utf-8")
         ]
     }
 }
