@@ -151,6 +151,30 @@ macro_rules! keyvalue {
         width,
         usemap,
     }
+    input {
+        accept,
+        alt,
+        autocomplete,
+        capture,
+        dirname,
+        form,
+        formaction,
+        height,
+        list,
+        max,
+        maxlength,
+        min,
+        minlength,
+        name,
+        pattern,
+        placeholder,
+        popovertarget,
+        size,
+        src,
+        step,
+        value,
+        width,
+    }
 }
 
 
@@ -229,6 +253,14 @@ macro_rules! boolean {
     }
     img {
         ismap
+    }
+    input {
+        checked,
+        disabled,
+        formnovalidate,
+        multiple,
+        readonly,
+        required,
     }
 }
 
@@ -433,6 +465,51 @@ macro_rules! enumerated {
             referrerpolicy_strict_origin("strict-origin")
             referrerpolicy_strict_origin_when_cross_origin("strict-origin-when-cross-origin")
             referrerpolicy_unsafe_url("unsafe-url")
+        ]
+    }
+    input {
+        formenctype [
+            formenctype_urlencoded("application/x-www-form-urlencoded")
+            formenctype_multipart("multipart/form-data")
+        ]
+        formmethod [
+            formmethod_post("post")
+            formmethod_get("get")
+            formmethod_dialog("dialog")
+        ]
+        formtarget [
+            formtarget_self("_self")
+            formtarget_blank("_blank")
+            formtarget_parent("_parent")
+            formtarget_top("_top")
+        ]
+        popovertargetaction [
+            popovertargetaction_hide("hide")
+            popovertargetaction_show("show")
+            popovertargetaction_toggle("toggle")
+        ]
+        type [
+            type_button("button")
+            type_checkbox("checkbox")
+            type_color("color")
+            type_date("date")
+            type_datetime_local("datetime-load")
+            type_email("email")
+            type_file("file")
+            type_hidden("hidden")
+            type_image("image")
+            type_month("month")
+            type_number("number")
+            type_password("password")
+            type_radio("radio")
+            type_range("range")
+            type_search("search")
+            type_submit("submit")
+            type_tel("tel")
+            type_text("text")
+            type_time("time")
+            type_url("url")
+            type_week("week")
         ]
     }
 }
