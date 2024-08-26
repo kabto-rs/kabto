@@ -1,4 +1,4 @@
-use crate::vdom::{Element, Tag};
+use crate::vdom::{Element, Tag, tag};
 use crate::vdom::eventhandler::EventHandler;
 
 
@@ -11,7 +11,7 @@ macro_rules! register_eventhandlers {
             $handler2:ident: $event_name2:ident $event_object2:ident;
         )*})*
     ) => {
-        impl<const T: Tag> Element<T> {$(
+        impl<T: Tag> Element<T> {$(
             pub fn $handler<__>(mut self, f: impl EventHandler<web_sys::$event_object, __>) -> Self {
                 if self.eventhandlers.is_none() {
                     self.eventhandlers = Some(Default::default())
@@ -23,7 +23,7 @@ macro_rules! register_eventhandlers {
                 self
             }
         )*}
-        $(impl Element<{Tag::$tag}> {$(
+        $(impl Element<tag::$tag> {$(
             pub fn $handler2<__>(mut self, f: impl EventHandler<web_sys::$event_object2, __>) -> Self {
                 if self.eventhandlers.is_none() {
                     self.eventhandlers = Some(Default::default())

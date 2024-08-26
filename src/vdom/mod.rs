@@ -1,13 +1,13 @@
 pub(crate) mod eventhandler;
 
 use self::eventhandler::eventHandler;
-use std::{borrow::Cow, collections::HashMap};
+use std::{borrow::Cow, collections::HashMap, marker::PhantomData};
 use web_sys::wasm_bindgen::{JsValue, JsCast};
 
 
 pub enum Node {
     Text(Text),
-    Element(Element<{Tag::ANY}>),
+    Element(Element<()>),
 }
 
 pub struct Text(
@@ -51,7 +51,7 @@ const _: () = {
     } integer_value! { u8 usize i32 }
 };
 
-pub struct Element<const TAG: Tag> {
+pub struct Element<T: Tag> {t: PhantomData<fn()->T>,
     pub(crate) tag:           &'static str,
     pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
     pub(crate) eventhandlers: Option<Box<HashMap<&'static str, eventHandler>>>,
@@ -60,139 +60,142 @@ pub struct Element<const TAG: Tag> {
 
 macro_rules! typed_tag {
     ($($name:ident)*) => {
-        mod tag {$(
+        pub trait Tag {
+            const NAME: &'static str;
+        }
+        impl Tag for () {
+            const NAME: &'static str = "";
+        }
+        pub(crate) mod tag {$(
             pub struct $name;
+            impl super::Tag for $name {
+                const NAME: &'static str = stringify!($name);
+            }
         )*}
     };
+} typed_tag! {
+    a
+    abbr
+    address
+    area
+    article
+    aside
+    audio
+    b
+    base
+    bdi
+    blockquote
+    body
+    br
+    button
+    canvas
+    caption
+    circle
+    cite
+    code
+    col
+    colgroup
+    data
+    datalist
+    dd
+    del
+    details
+    dfn
+    dialog
+    div
+    dl
+    dt
+    em
+    embed
+    fencedframe
+    fieldset
+    figcaption
+    figure
+    footer
+    form
+    h1
+    h2
+    h3
+    h4
+    h5
+    h6
+    head
+    header
+    hgroup
+    hr
+    html
+    i
+    iframe
+    img
+    input
+    ins
+    kbd
+    label
+    legend
+    li
+    link
+    main
+    map
+    mark
+    menu
+    meta
+    meter
+    nav
+    noscript
+    object
+    ol
+    optgroup
+    option
+    output
+    p
+    path
+    picture
+    portal
+    pre
+    progress
+    q
+    rp
+    rt
+    ruby
+    s
+    samp
+    script
+    search
+    section
+    select
+    slot
+    small
+    source
+    span
+    strong
+    style
+    sub
+    summary
+    sup
+    svg
+    table
+    tbody
+    td
+    template
+    textarea
+    tfoot
+    th
+    thead
+    time
+    title
+    tr
+    track
+    u
+    ul
+    var
+    video
+    wbr
 }
 
-#[derive(std::marker::ConstParamTy, PartialEq, Eq)]
-#[litenum::to]
-pub enum Tag {
-    ANY,
-
-    a,
-    abbr,
-    address,
-    area,
-    article,
-    aside,
-    audio,
-    b,
-    base,
-    bdi,
-    blockquote,
-    body,
-    br,
-    button,
-    canvas,
-    caption,
-    circle,
-    cite,
-    code,
-    col,
-    colgroup,
-    data,
-    datalist,
-    dd,
-    del,
-    details,
-    dfn,
-    dialog,
-    div,
-    dl,
-    dt,
-    em,
-    embed,
-    fencedframe,
-    fieldset,
-    figcaption,
-    figure,
-    footer,
-    form,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    head,
-    header,
-    hgroup,
-    hr,
-    html,
-    i,
-    iframe,
-    img,
-    input,
-    ins,
-    kbd,
-    label,
-    legend,
-    li,
-    link,
-    main,
-    map,
-    mark,
-    menu,
-    meta,
-    meter,
-    nav,
-    noscript,
-    object,
-    ol,
-    optgroup,
-    option,
-    output,
-    p,
-    path,
-    picture,
-    portal,
-    pre,
-    progress,
-    q,
-    rp,
-    rt,
-    ruby,
-    s,
-    samp,
-    script,
-    search,
-    section,
-    select,
-    slot,
-    small,
-    source,
-    span,
-    strong,
-    style,
-    sub,
-    summary,
-    sup,
-    svg,
-    table,
-    tbody,
-    td,
-    template,
-    textarea,
-    tfoot,
-    th,
-    thead,
-    time,
-    title,
-    tr,
-    track,
-    u,
-    ul,
-    var,
-    video,
-    wbr,
-}
-
-impl<const TAG: Tag> Element<TAG> {
+impl<T: Tag> Element<T> {
     pub(crate) const fn new() -> Self {
-        Element {
-            tag:           TAG.lit(),
+        Element {t: PhantomData,
+            tag:           T::NAME,
             attributes:    None,
             eventhandlers: None,
             children:      Vec::new()
@@ -200,8 +203,7 @@ impl<const TAG: Tag> Element<TAG> {
     }
 
     pub(crate) fn into_node(self) -> Node {
-        let this: Element<{Tag::ANY}> = unsafe {std::mem::transmute(self)};
-        Node::Element(this)
+        Node::Element(unsafe {std::mem::transmute(self)})
     }
 }
 
@@ -214,7 +216,7 @@ impl Node {
                 let node = document.create_text_node(&text);
                 container.append_child(&node)?;
             }
-            Node::Element(Element { tag, attributes, eventhandlers, children }) => {
+            Node::Element(Element { t:_, tag, attributes, eventhandlers, children }) => {
                 let node = document.create_element(tag)?; {
                     if let Some(attributes) = attributes {                        
                         for (name, value) in *attributes {

@@ -7,18 +7,18 @@ pub mod nodes;
 macro_rules! tag {
     ($($name:ident),* $(,)?) => {
         pub mod tag {
-            use crate::vdom::{Element, Tag};
-            
-            #[cfg(debug_assertions)]
-            fn __assert_exaustive__(tag: Tag) {
-                match tag {
-                    $( Tag::$name | )* Tag::ANY => ()
-                }
-            }
+            use crate::vdom::{Element, tag};
+
+            // #[cfg(debug_assertions)]
+            // fn __assert_exaustive__(tag: Tag) {
+            //     match tag {
+            //         $( Tag::$name | )* Tag::ANY => ()
+            //     }
+            // }
 
             $(
                 #[allow(non_upper_case_globals)]
-                pub const $name: Element<{Tag::$name}> = Element::new();
+                pub const $name: Element<tag::$name> = Element::new();
             )*
         }
     };
