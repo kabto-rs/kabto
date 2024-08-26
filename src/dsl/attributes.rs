@@ -4,61 +4,73 @@ use crate::vdom::{Text, Element, Tag};
 macro_rules! keyvalue {
     (
         global {
-            $($name:ident)*
+            $( $name:ident $($attr_name:ident)? ),* $(,)?
         }
         $($tag:ident {
-            $($name2:ident)*
+            $( $name2:ident $(for $attr_name2:ident)? ),* $(,)?
         })*
     ) => {
         impl<const T: Tag> Element<T> {$(
-            pub fn $name(mut self, value: impl Into<Text>) -> Self {
-                if self.attributes.is_none() {
-                    self.attributes = Some(Default::default())
-                }
-                unsafe {self.attributes.as_mut().unwrap_unchecked()}
-                    .insert(stringify!($name), value.into());
-                self
-            }
+            keyvalue! {@ $name $($attr_name)?}
         )*}
         $(impl Element<{Tag::$tag}> {$(
-            pub fn $name2(mut self, value: impl Into<Text>) -> Self {
-                if self.attributes.is_none() {
-                    self.attributes = Some(Default::default())
-                }
-                unsafe {self.attributes.as_mut().unwrap_unchecked()}
-                    .insert(stringify!($name2), value.into());
-                self
-            }
+            keyvalue! {@ $name2 $(for $attr_name2)?}
         )*})*
+    };
+    (@ $name:ident) => {
+        pub fn $name(mut self, value: impl Into<Text>) -> Self {
+            if self.attributes.is_none() {
+                self.attributes = Some(Default::default())
+            }
+            unsafe {self.attributes.as_mut().unwrap_unchecked()}
+                .insert(stringify!($name), value.into());
+            self
+        }
+    };
+    (@ $name:ident for $attr_name:ident) => {
+        pub fn $name(mut self, value: impl Into<Text>) -> Self {
+            if self.attributes.is_none() {
+                self.attributes = Some(Default::default())
+            }
+            unsafe {self.attributes.as_mut().unwrap_unchecked()}
+                .insert(stringify!($attr_name), value.into());
+            self
+        }
     };
 } keyvalue! {
     global {
-        accesskey
-        class
-        enterkeyhint
-        exportparts
-        id
-        is
-        itemid
-        itemprop
-        itemref
-        itemscope
-        itemtype
-        lang
-        nonce
-        part
-        role
-        slot
-        style
-        tabindex
-        title
+        accesskey,
+        class,
+        enterkeyhint,
+        exportparts,
+        id,
+        is,
+        itemid,
+        itemprop,
+        itemref,
+        itemscope,
+        itemtype,
+        lang,
+        nonce,
+        part,
+        role,
+        slot,
+        style,
+        tabindex,
+        title,
     }
     a {
-        download_filename
-        href
-        hreflang
-        ping
-        rel
+        download_filename for download,
+        href,
+        hreflang,
+        ping,
+        rel,
+    }
+    area {
+        alt,
+        coords,
+        download_filename,
+        href,
     }
 }
 
@@ -101,6 +113,9 @@ macro_rules! boolean {
         popover
     }
     a {
+        download
+    }
+    area {
         download
     }
 }
