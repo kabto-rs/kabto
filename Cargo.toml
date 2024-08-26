@@ -32,6 +32,7 @@ features = [
     "PointerEvent",
     "TouchEvent",
     "TransitionEvent",
+    "UiEvent",
     "WheelEvent",
 ]
 

@@ -92,7 +92,7 @@ pub(crate) enum Tag {
     em,
     embed,
     fencedframe,
-    dieldset,
+    fieldset,
     figcaption,
     figure,
     footer,

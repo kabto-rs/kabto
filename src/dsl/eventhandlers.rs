@@ -109,6 +109,12 @@ macro_rules! register_eventhandlers {
         on_scrollend:        scrollend        Event;
     }
     body {
-        on_afterprint: afterprint Event;
+        on_afterprint:   afterprint   Event;
+        on_beforeprint:  beforeprint  Event;
+        on_beforeunload: beforeunload Event;
+        on_offline:      offline      Event;
+        on_online:       online       Event;
+
+        on_resize:       resize       UiEvent;
     }
 }

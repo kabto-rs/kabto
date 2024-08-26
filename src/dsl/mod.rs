@@ -54,7 +54,7 @@ macro_rules! tag {
     em,
     embed,
     fencedframe,
-    dieldset,
+    fieldset,
     figcaption,
     figure,
     footer,
