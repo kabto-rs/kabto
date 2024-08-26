@@ -12,6 +12,8 @@
 )]
 
 mod dsl;
+mod fiber;
+mod scheduler;
 mod vdom;
 
 pub use dsl::tag;

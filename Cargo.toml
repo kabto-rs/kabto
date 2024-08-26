@@ -34,6 +34,9 @@ features = [
     "TransitionEvent",
     "UiEvent",
     "WheelEvent",
+
+    # currently activate
+    "IdleDeadline",
 ]
 
 [dependencies.wasm-bindgen-futures]
