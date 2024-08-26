@@ -201,67 +201,6 @@ pub trait EventHandler<Ev, __> {
     fn into_eventhandler(self) -> eventHandler;
 }
 
-// const _: (/* without event */) = {
-//     impl<F> EventHandler<fn()> for F
-//     where
-//         F: Fn() + 'static
-//     {
-//         fn into_eventhandler(self) -> eventHandler {
-//             eventHandler {class:EventClass::Event,
-//                 handler: Box::new(move |_| self())
-//             }
-//         }
-//     }
-//     
-//     impl<F> EventHandler<fn()->Result<(), JsValue>> for F
-//     where
-//         F: Fn()->Result<(), JsValue> + 'static
-//     {
-//         fn into_eventhandler(self) -> eventHandler {
-//             eventHandler {class:EventClass::Event,
-//                 handler: Box::new(move |_| {
-//                     if let Err(err) = self() {
-//                         web_sys::console::log_1(&err)
-//                     }
-//                 })
-//             }
-//         }
-//     }
-//     
-//     impl<F, Fut> EventHandler<fn()->((),)> for F
-//     where
-//         F:   Fn() -> Fut + 'static,
-//         Fut: Future<Output = ()> + 'static
-//     {
-//         fn into_eventhandler(self) -> eventHandler {
-//             eventHandler {class:EventClass::Event,
-//                 handler: Box::new(move |_| spawn_local(
-//                     self()
-//                 ))
-//             }
-//         }
-//     }
-//     
-//     impl<F, Fut> EventHandler<fn()->(Result<(), JsValue>,)> for F
-//     where
-//         F:   Fn() -> Fut + 'static,
-//         Fut: Future<Output = Result<(), JsValue>> + 'static
-//     {
-//         fn into_eventhandler(self) -> eventHandler {
-//             eventHandler {class:EventClass::Event,
-//                 handler: Box::new(move |_| {
-//                     let res = self();
-//                     spawn_local(async {
-//                         if let Err(err) = res.await {
-//                             web_sys::console::log_1(&err)
-//                         }
-//                     })
-//                 })
-//             }
-//         }
-//     }
-// };
-
 const _: (/* with event */) = {
     pub trait EventObject: JsCast {
         const CLASS: EventClass;

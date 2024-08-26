@@ -1,21 +1,135 @@
 pub(crate) mod eventhandler;
 
-use crate::util::Text;
 use self::eventhandler::eventHandler;
 use std::{borrow::Cow, collections::HashMap};
 use web_sys::wasm_bindgen::{JsValue, JsCast};
 
 
 pub enum Node {
-    Text(Cow<'static, str>),
-    Element(Element),
+    Text(Text),
+    Element(Element<{Tag::ANY}>),
 }
 
-pub struct Element {
+pub struct Text(
+    Cow<'static, str>
+);
+const _: () = {
+    impl Into<Cow<'static, str>> for Text {
+        fn into(self) -> Cow<'static, str> {
+            self.0
+        }
+    }
+    impl std::ops::Deref for Text {
+        type Target = str;
+        fn deref(&self) -> &Self::Target {
+            &self.0
+        }
+    }
+    impl From<String> for Text {
+        fn from(value: String) -> Self {
+            Self(value.to_string().into())
+        }
+    }
+    impl From<&'static str> for Text {
+        fn from(value: &'static str) -> Self {
+            Self(value.into())
+        }
+    }
+    macro_rules! integer_value {
+        ($($t:ty)*) => {$(
+            impl From<$t> for Text {
+                fn from(value: $t) -> Self {
+                    Self(value.to_string().into())
+                }
+            }
+        )*};
+    } integer_value! { u8 usize i32 }
+};
+
+pub struct Element<const TAG: Tag> {
     pub(crate) tag:           &'static str,
     pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
     pub(crate) eventhandlers: Option<Box<HashMap<&'static str, eventHandler>>>,
     pub(crate) children:      Vec<Node>
+}
+
+#[derive(std::marker::ConstParamTy, PartialEq, Eq)]
+#[litenum::to]
+pub(crate) enum Tag {
+    ANY,
+
+    html,
+    head,
+    link,
+    meta,
+    style,
+    title,
+    body,
+    article,
+    aside,
+    footer,
+    header,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    main,
+    nav,
+    section,
+    blockquote,
+    div,
+    li,
+    menu,
+    ol,
+    p,
+    pre,
+    ul,
+    a,
+    code,
+    span,
+    strong,
+    audio,
+    img,
+    video,
+    iframe,
+    svg,
+    path,
+    circle,
+    canvas,
+    script,
+    caption,
+    col,
+    colgroup,
+    table,
+    tbody,
+    td,
+    tfoot,
+    th,
+    thread,
+    tr,
+    button,
+    form,
+    input,
+    label,
+    textarea,
+}
+
+impl<const TAG: Tag> Element<TAG> {
+    pub(crate) const fn new() -> Self {
+        Element {
+            tag:           TAG.lit(),
+            attributes:    None,
+            eventhandlers: None,
+            children:      Vec::new()
+        }
+    }
+
+    pub(crate) fn into_node(self) -> Node {
+        let this: Element<{Tag::ANY}> = unsafe {std::mem::transmute(self)};
+        Node::Element(this)
+    }
 }
 
 impl Node {

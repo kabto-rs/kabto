@@ -1,4 +1,4 @@
-use crate::vdom::Node;
+use crate::vdom::{Element, Tag};
 use crate::vdom::eventhandler::{Event, EventHandler};
 
 
@@ -9,15 +9,13 @@ macro_rules! register_eventhandlers {
             match e {$(| Event::$event_name => (),)*}
         }
 
-        impl Node {$(
+        impl<const T: Tag> Element<T> {$(
             pub fn $handler<__>(mut self, f: impl EventHandler<$event_object, __>) -> Self {
-                let Node::Element(this) = &mut self else {unreachable!()};
-
-                if this.eventhandlers.is_none() {
-                    this.eventhandlers = Some(Default::default())
+                if self.eventhandlers.is_none() {
+                    self.eventhandlers = Some(Default::default())
                 }
 
-                unsafe {this.eventhandlers.as_mut().unwrap_unchecked()}
+                unsafe {self.eventhandlers.as_mut().unwrap_unchecked()}
                     .insert(Event::$event_name.lit(), f.into_eventhandler());
 
                 self

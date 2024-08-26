@@ -1,18 +1,15 @@
-use crate::vdom::Node;
-use crate::util::Text;
+use crate::vdom::{Text, Element, Tag};
 
 
 macro_rules! boolean {
     ($($name:ident)*) => {
-        impl Node {$(
+        impl<const T: Tag> Element<T> {$(
             pub fn $name(mut self) -> Self {
-                let Node::Element(this) = &mut self else {unreachable!()};
-
-                if this.attributes.is_none() {
-                    this.attributes = Some(Default::default())
+                if self.attributes.is_none() {
+                    self.attributes = Some(Default::default())
                 }
 
-                unsafe {this.attributes.as_mut().unwrap_unchecked()}
+                unsafe {self.attributes.as_mut().unwrap_unchecked()}
                     .insert(stringify!($name), "".into());
 
                 self
@@ -29,16 +26,14 @@ macro_rules! boolean {
 
 macro_rules! enumerated {
     ($($name:ident: $( $method:ident ($value:literal) )|* ),*) => {
-        impl Node {$(
+        impl<const T: Tag> Element<T> {$(
             $(
                 pub fn $method(mut self) -> Self {
-                    let Node::Element(this) = &mut self else {unreachable!()};
-
-                    if this.attributes.is_none() {
-                        this.attributes = Some(Default::default())
+                    if self.attributes.is_none() {
+                        self.attributes = Some(Default::default())
                     }
 
-                    unsafe {this.attributes.as_mut().unwrap_unchecked()}
+                    unsafe {self.attributes.as_mut().unwrap_unchecked()}
                         .insert(stringify!($name), $value.into());
 
                     self
@@ -59,15 +54,13 @@ macro_rules! enumerated {
 
 macro_rules! other {
     ($($name:ident)*) => {
-        impl Node {$(
+        impl<const T: Tag> Element<T> {$(
             pub fn $name(mut self, value: impl Into<Text>) -> Self {
-                let Node::Element(this) = &mut self else {unreachable!()};
-
-                if this.attributes.is_none() {
-                    this.attributes = Some(Default::default())
+                if self.attributes.is_none() {
+                    self.attributes = Some(Default::default())
                 }
 
-                unsafe {this.attributes.as_mut().unwrap_unchecked()}
+                unsafe {self.attributes.as_mut().unwrap_unchecked()}
                     .insert(stringify!($name), value.into());
 
                 self

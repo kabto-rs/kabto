@@ -1,8 +1,8 @@
+mod tag;
 mod attributes;
 mod eventhandlers;
 
-use crate::vdom::Node;
-use crate::util::Text;
+use crate::vdom::{Element, Node, Tag, Text};
 
 
 pub trait IntoNodes {
@@ -32,6 +32,11 @@ impl Nodes {
 //////////////////////////////////////////////
 
 
+impl<const TAG: Tag> IntoNodes for Element<TAG> {
+    fn into_nodes(self) -> Nodes {
+        Nodes::Some(self.into_node())
+    }
+}
 impl IntoNodes for Node {
     fn into_nodes(self) -> Nodes {
         Nodes::Some(self)
@@ -105,99 +110,3 @@ NodeCollection! { N1, N2, N3, N4, N5, N6, N7, N8, N9, N10, N11, N12, N13, N14, N
 NodeCollection! { N1, N2, N3, N4, N5, N6, N7, N8, N9, N10, N11, N12, N13, N14, N15, N16, N17, N18; 18 }
 NodeCollection! { N1, N2, N3, N4, N5, N6, N7, N8, N9, N10, N11, N12, N13, N14, N15, N16, N17, N18, N19; 19 }
 NodeCollection! { N1, N2, N3, N4, N5, N6, N7, N8, N9, N10, N11, N12, N13, N14, N15, N16, N17, N18, N19, N20; 20 }
-
-
-//////////////////////////////////////////////
-
-
-macro_rules! native_tags {
-    ($($name:ident)*) => {
-        pub mod tag {
-            use super::Node;
-            $(
-                #[allow(non_upper_case_globals)]
-                pub const $name: Node = Node::new_element(stringify!($name));
-            )*
-        }
-    };
-} native_tags! {
-    /* main root */
-    html
-
-    /* document metadata */
-    head
-    link
-    meta
-    style
-    title
-
-    /* sectioning root */
-    body
-
-    /* content sectioning */
-    article
-    aside
-    footer
-    header
-    h1
-    h2
-    h3
-    h4
-    h5
-    h6
-    main
-    nav
-    section
-
-    /* text content */
-    blockquote
-    div
-    li
-    menu
-    ol
-    p
-    pre
-    ul
-
-    /* inline text semantics */
-    a
-    code
-    span
-    strong
-
-    /* image and multimedia */
-    audio
-    img
-    video
-
-    /* embedded content */
-    iframe
-
-    /* svg */
-    svg
-    path
-    circle
-
-    /* scripting */
-    canvas
-    script
-
-    /* table content */
-    caption
-    col
-    colgroup
-    table
-    tbody
-    td
-    tfoot
-    th
-    thread
-    tr
-
-    /* forms */
-    button
-    form
-    input
-    label
-    textarea
-}
