@@ -35,6 +35,11 @@ const _: () = {
             Self(value.into())
         }
     }
+    impl From<bool> for Text {
+        fn from(value: bool) -> Self {
+            Self((if value {"true"} else {"false"}).into())
+        }
+    }
     macro_rules! integer_value {
         ($($t:ty)*) => {$(
             impl From<$t> for Text {

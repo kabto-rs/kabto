@@ -270,8 +270,31 @@ macro_rules! keyvalue {
     style {
         media,
     }
-    template {
-
+    textarea {
+        cols,
+        dirname,
+        form,
+        maxlength,
+        minlength,
+        name,
+        placeholder,
+    }
+    th {
+        abbr,
+        colspan,
+        headers,
+        rowspan,
+    }
+    time {
+        datetime
+    }
+    track {
+        label,
+        src,
+        srclang,
+    }
+    video {
+        poster,
     }
 }
 
@@ -318,7 +341,7 @@ macro_rules! boolean {
         autofocus,
         contenteditable,
         hidden,
-        insert,
+        inert,
         popover,
     }
     a {
@@ -386,6 +409,24 @@ macro_rules! boolean {
     template {
         shadowrootclonable,
         shadowrootdelegatesfocus,
+    }
+    textarea {
+        disabled,
+        readonly,
+        required,
+        rows,
+    }
+    track {
+        default
+    }
+    video {
+        autoplay,
+        controls,
+        loops for "loop",
+        muted,
+        playsinline,
+        src,
+        width
     }
 }
 
@@ -460,6 +501,14 @@ macro_rules! enumerated {
         "translate" [
             translate_yes("yes")
             translate_no("no")
+        ]
+        "virtualkeyboardpolicy" [
+            virtualkeyboardpolicy_auto("auto")
+            virtualkeyboardpolicy_manual("manual")
+        ]
+        "writingsuggestions" [
+            writingsuggestions_true("true")
+            writingsuggestions_false("false")
         ]
     }
     a {
@@ -728,6 +777,44 @@ macro_rules! enumerated {
         "shadowrootmode" [
             shadowrootmode_open("open")
             shadowrootmode_closed("closed")
+        ]
+    }
+    textarea {
+        "autocomplete" [
+            autocomplete_on("on")
+            autocomplete_off("off")
+        ]
+        "wrap" [
+            wrap_hard("hard")
+            wrap_soft("soft")
+        ]
+    }
+    th {
+        "scope" [
+            scope_row("row")
+            scope_col("col")
+            scope_rowgroup("rowgroup")
+            scope_colgroup("colgroup")
+        ]
+    }
+    track {
+        "kind" [
+            kind_subtitles("subtitles")
+            kind_captions("captions")
+            kind_descriptions("descriptions")
+            kind_chapters("chapters")
+            kind_metadata("metadata")
+        ]
+    }
+    video {
+        "crossorigin" [
+            crossorigin_anonymous("anonymous")
+            crossorigin_use_credentials("use-credentials")
+        ]
+        "preload" [
+            preload_none("none")
+            preload_metadata("metadata")
+            preload_auto("auto")
         ]
     }
 }
