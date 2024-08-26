@@ -198,7 +198,7 @@ impl<const TAG: Tag> Element<TAG> {
 }
 
 impl Node {
-    pub fn csr(self, container: &web_sys::Node) -> Result<(), JsValue> {
+    pub fn render_to(self, container: &web_sys::Node) -> Result<(), JsValue> {
         let document = web_sys::window().unwrap().document().unwrap();
 
         match self {
@@ -221,7 +221,7 @@ impl Node {
                         }
                     }
                     for child in children {
-                        child.csr(container)?;
+                        child.render_to(container)?;
                     }
                 }
                 container.append_child(&node)?;
