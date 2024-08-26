@@ -1,5 +1,5 @@
 use crate::vdom::Node;
-use crate::vdom::eventhandler::{Event, EventHandler, eventHandler};
+use crate::vdom::eventhandler::{Event, EventHandler};
 
 
 macro_rules! register_eventhandlers {
@@ -18,7 +18,7 @@ macro_rules! register_eventhandlers {
                 }
 
                 unsafe {this.eventhandlers.as_mut().unwrap_unchecked()}
-                .insert(Event::$event_name.lit(), f.into_eventhandler());
+                    .insert(Event::$event_name.lit(), f.into_eventhandler());
 
                 self
             }
@@ -41,7 +41,6 @@ macro_rules! register_eventhandlers {
     on_mouseover:   mouseover   web_sys::MouseEvent;
     on_mouseup:     mouseup     web_sys::MouseEvent;
 
-    // PointerEvent
     on_click:              click              web_sys::PointerEvent;
     on_gotpointercapture:  gotpointercapture  web_sys::PointerEvent;
     on_lostpointercapture: lostpointercapture web_sys::PointerEvent;
@@ -55,41 +54,33 @@ macro_rules! register_eventhandlers {
     on_pointerrawupdate:   pointerrawupdate   web_sys::PointerEvent;
     on_pointerup:          pointerup          web_sys::PointerEvent;
 
-    // InputEvent
     on_beforeinput: beforeinput web_sys::InputEvent;
 
-    // FocusEvent
     on_blur:     blur     web_sys::FocusEvent;
     on_focus:    focus    web_sys::FocusEvent;
     on_focusin:  focusin  web_sys::FocusEvent;
     on_focusout: focusout web_sys::FocusEvent;
 
-    // CompositionEvent
     on_compositionend:    compositionend    web_sys::CompositionEvent;
     on_compositionstart:  compositionstart  web_sys::CompositionEvent;
     on_compositionupdate: compositionupdate web_sys::CompositionEvent;
 
-    // KeyboardEvent
     on_keydown:  keydown  web_sys::KeyboardEvent;
     on_keypress: keypress web_sys::KeyboardEvent;
     on_keyup:    keyup    web_sys::KeyboardEvent;
 
-    // TouchEvent
     on_touchcancel: touchcancel web_sys::TouchEvent;
     on_touchend:    touchend    web_sys::TouchEvent;
     on_touchmove:   touchmove   web_sys::TouchEvent;
     on_touchstart:  touchstart  web_sys::TouchEvent;
 
-    // TransitionEvent
     on_transitioncancel: transitioncancel web_sys::TransitionEvent;
     on_transitionend:    transitionend    web_sys::TransitionEvent;
     on_transitionrun:    transitionrun    web_sys::TransitionEvent;
     on_transitionstart:  transitionstart  web_sys::TransitionEvent;
 
-    // WheelEvent
     on_wheel: wheel web_sys::WheelEvent;
 
-    // Event
     on_beforematch:      beforematch      web_sys::Event;
     on_change:           change           web_sys::Event;
     on_fullscreenchange: fullscreenchange web_sys::Event;
