@@ -299,20 +299,20 @@ macro_rules! boolean {
 macro_rules! enumerated {
     (
         global {
-            $($name:ident [$( $method:ident ($value:literal) )*] )*
+            $( $name:literal $(for $attr_name:literal)? [$( $method:ident ($value:literal) )*] )*
         }
         $($tag:ident {
-            $($name2:ident [$( $method2:ident ($value2:literal) )*] )*
+            $( $name2:literal $(for $attr_name2:literal)? [$( $method2:ident ($value2:literal) )*] )*
         })*
     ) => {
         impl<const T: Tag> Element<T> {$(
             $(pub fn $method(mut self) -> Self {
-                    if self.attributes.is_none() {
-                        self.attributes = Some(Default::default())
-                    }
-                    unsafe {self.attributes.as_mut().unwrap_unchecked()}
-                        .insert(stringify!($name), $value.into());
-                    self
+                if self.attributes.is_none() {
+                    self.attributes = Some(Default::default())
+                }
+                unsafe {self.attributes.as_mut().unwrap_unchecked()}
+                    .insert($name, $value.into());
+                self
             })*
         )*}
         $(impl Element<{Tag::$tag}> {$(
@@ -321,35 +321,35 @@ macro_rules! enumerated {
                     self.attributes = Some(Default::default())
                 }
                 unsafe {self.attributes.as_mut().unwrap_unchecked()}
-                    .insert(stringify!($name2), $value2.into());
+                    .insert($name2, $value2.into());
                 self
         })*)*})*
     };
 } enumerated! {
     global {
-        autocapitalize [
+        "autocapitalize" [
             autocapitalize_off("off")
             autocapitalize_on("on")
             autocapitalize_words("words")
             autocapitalize_charactors("charactors")
         ]
-        contenteditable [
+        "contenteditable" [
             contenteditable_false("false")
             contenteditable_plaintext_only("plaintext-only")
         ]
-        dir [
+        "dir" [
             dir_ltr("ltr")
             dir_rtl("rtl")
             dir_auto("auto")
         ]
-        draggable [
+        "draggable" [
             draggable_true("true")
             draggable_false("false")
         ]
-        hidden [
+        "hidden" [
             hidden_until_found("until-found")
         ]
-        inputmode [
+        "inputmode" [
             inputmode_none("none")
             inputmode_text("text")
             inputmode_decimal("decimal")
@@ -359,17 +359,17 @@ macro_rules! enumerated {
             inputmode_email("email")
             inputmode("url")
         ]
-        spellcheck [
+        "spellcheck" [
             spellcheck_true("true")
             spellcheck_false("false")
         ]
-        translate [
+        "translate" [
             translate_yes("yes")
             translate_no("no")
         ]
     }
     a {
-        referrerpolicy [
+        "referrerpolicy" [
             referrerpolicy_no_referrer("no-referrer")
             referrerpolicy_no_referrer_when_downgrade("no-referrer-when-downgrade")
             referrerpolicy_origin("origin")
@@ -379,7 +379,7 @@ macro_rules! enumerated {
             referrerpolicy_strict_origin_when_cross_origin("strict-origin-when-cross-origin")
             referrerpolicy_unsafe_url("unsafe-url")
         ]
-        target [
+        "target" [
             target_self("_self")
             target_blank("_blank")
             target_parent("_parent")
@@ -387,7 +387,7 @@ macro_rules! enumerated {
         ]
     }
     area {
-        target [
+        "target" [
             target_self("_self")
             target_blank("_blank")
             target_parent("_parent")
@@ -395,18 +395,18 @@ macro_rules! enumerated {
         ]
     }
     audio {
-        crossorigin [
+        "crossorigin" [
             crossorigin_anonymous("anonymous")
             crossorigin_use_credentials("use-credentials")
         ]
-        preload [
+        "preload" [
             preload_none("none")
             preload_metadata("metadata")
             preload_auto("auto")
         ]
     }
     base {
-        target [
+        "target" [
             target_self("_self")
             target_blank("_blank")
             target_parent("_parent")
@@ -414,47 +414,47 @@ macro_rules! enumerated {
         ]
     }
     button {
-        formenctype [
+        "formenctype" [
             formenctype_urlencoded("application/x-www-form-urlencoded")
             formenctype_multipart("multipart/form-data")
         ]
-        formmethod [
+        "formmethod" [
             formmethod_post("post")
             formmethod_get("get")
             formmethod_dialog("dialog")
         ]
-        formtarget [
+        "formtarget" [
             formtarget_self("_self")
             formtarget_blank("_blank")
             formtarget_parent("_parent")
             formtarget_top("_top")
         ]
-        popovertargetaction [
+        "popovertargetaction" [
             popovertargetaction_hide("hide")
             popovertargetaction_show("show")
             popovertargetaction_toggle("toggle")
         ]
-        type [
+        "type" [
             type_submit("submit")
             type_reset("reset")
             type_button("button")
         ]
     }
     form {
-        autocomplete [
+        "autocomplete" [
             autocomplete_on("on")
             autocomplete_off("off")
         ]
-        enctype [
+        "enctype" [
             enctype_urlencoded("application/x-www-form-urlencoded")
             enctype_multipart("multipart/form-data")
         ]
-        method [
+        "method" [
             method_post("post")
             method_get("get")
             method_dialog("dialog")
         ]
-        target [
+        "target" [
             target_self("_self")
             target_blank("_blank")
             target_parent("_parent")
@@ -462,7 +462,7 @@ macro_rules! enumerated {
         ]
     }
     iframe {
-        referrerpolicy [
+        "referrerpolicy" [
             referrerpolicy_no_referrer("no-referrer")
             referrerpolicy_no_referrer_when_downgrade("no-referrer-when-downgrade")
             referrerpolicy_origin("origin")
@@ -474,20 +474,20 @@ macro_rules! enumerated {
         ]
     }
     img {
-        crossorigin [
+        "crossorigin" [
             crossorigin_anonymous("anonymous")
             crossorigin_use_credentials("use-credentials")
         ]
-        decoding [
+        "decoding" [
             decoding_sync("sync")
             decoding_async("async")
             decoding_auto("auto")
         ]
-        loading [
+        "loading" [
             loading_eager("eager")
             loading_lazy("lazy")
         ]
-        referrerpolicy [
+        "referrerpolicy" [
             referrerpolicy_no_referrer("no-referrer")
             referrerpolicy_no_referrer_when_downgrade("no-referrer-when-downgrade")
             referrerpolicy_origin("origin")
@@ -499,27 +499,27 @@ macro_rules! enumerated {
         ]
     }
     input {
-        formenctype [
+        "formenctype" [
             formenctype_urlencoded("application/x-www-form-urlencoded")
             formenctype_multipart("multipart/form-data")
         ]
-        formmethod [
+        "formmethod" [
             formmethod_post("post")
             formmethod_get("get")
             formmethod_dialog("dialog")
         ]
-        formtarget [
+        "formtarget" [
             formtarget_self("_self")
             formtarget_blank("_blank")
             formtarget_parent("_parent")
             formtarget_top("_top")
         ]
-        popovertargetaction [
+        "popovertargetaction" [
             popovertargetaction_hide("hide")
             popovertargetaction_show("show")
             popovertargetaction_toggle("toggle")
         ]
-        type [
+        "type" [
             type_button("button")
             type_checkbox("checkbox")
             type_color("color")
@@ -544,7 +544,7 @@ macro_rules! enumerated {
         ]
     }
     link {
-        as [
+        "as" [
             as_audio("audio")
             as_document("document")
             as_embed("embed")
@@ -558,16 +558,16 @@ macro_rules! enumerated {
             as_video("video")
             as_worker("worker")
         ]
-        crossorigin [
+        "crossorigin" [
             crossorigin_anonymous("anonymous")
             crossorigin_use_credentials("use-credentials")
         ]
-        fetchpriority [
+        "fetchpriority" [
             fetchpriority_high("high")
             fetchpriority_low("low")
             fetchpriority_auto("auto")
         ]
-        referrerpolicy [
+        "referrerpolicy" [
             referrerpolicy_no_referrer("no-referrer")
             referrerpolicy_no_referrer_when_downgrade("no-referrer-when-downgrade")
             referrerpolicy_origin("origin")
@@ -579,8 +579,14 @@ macro_rules! enumerated {
         ]
     }
     meta {
-        charset [
+        "charset" [
             charset_utf8("utf-8")
+        ]
+        "http-equiv" [
+            http_equiv_content_security_policy("content-security-policy")
+            http_equiv_content_type("content-type")
+            http_equiv_default_style("default-style")
+            http_equiv_refresh("refresh")
         ]
     }
 }
