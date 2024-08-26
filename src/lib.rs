@@ -15,10 +15,9 @@ mod dsl;
 mod vdom;
 
 pub use dsl::tag;
-pub use dsl::nodes::IntoNodes;
 
-pub use ::web_sys::{AnimationEvent, MouseEvent, PointerEvent, FocusEvent, CompositionEvent, KeyboardEvent, TouchEvent, TransitionEvent, WheelEvent, Event, UiEvent};
 pub use ::web_sys::wasm_bindgen::{JsValue, JsCast};
+pub mod event {pub use ::web_sys::{AnimationEvent, MouseEvent, PointerEvent, FocusEvent, CompositionEvent, KeyboardEvent, TouchEvent, TransitionEvent, WheelEvent, Event, UiEvent};}
 
 
 pub fn window() -> ::web_sys::Window {
@@ -31,8 +30,11 @@ pub fn document() -> ::web_sys::Document {
     window().document().expect_throw("`document` not found")
 }
 
+pub trait Component: dsl::nodes::IntoNodes {}
+impl<IN: dsl::nodes::IntoNodes> Component for IN {}
+
 pub fn render(
-    nodes: impl IntoNodes,
+    nodes: impl Component,
     root:  &web_sys::Node
 ) -> Result<(), JsValue> {
     use dsl::nodes::Nodes;

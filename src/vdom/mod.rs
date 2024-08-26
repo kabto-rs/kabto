@@ -58,6 +58,14 @@ pub struct Element<const TAG: Tag> {
     pub(crate) children:      Vec<Node>
 }
 
+macro_rules! typed_tag {
+    ($($name:ident)*) => {
+        mod tag {$(
+            pub struct $name;
+        )*}
+    };
+}
+
 #[derive(std::marker::ConstParamTy, PartialEq, Eq)]
 #[litenum::to]
 pub enum Tag {
