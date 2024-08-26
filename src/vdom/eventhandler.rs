@@ -22,170 +22,170 @@ pub enum EventClass {
     Event
 }
 
-#[litenum::to]
-pub enum Event {
-    // AnimationEvent
-    animationcancel,
-    animationend,
-    animationiteration,
-    animationstart,
-
-    // MouseEvent
-    auxclick,
-    contextmenu,
-    dblclick,
-    mousedown,
-    mouseenter,
-    mouseleave,
-    mousemove,
-    mouseout,
-    mouseover,
-    mouseup,
-
-    // PointerEvent
-    click,
-    gotpointercapture,
-    lostpointercapture,
-    pointercancel,
-    pointerdown,
-    pointerenter,
-    pointerleave,
-    pointermove,
-    pointerout,
-    pointerover,
-    pointerrawupdate,
-    pointerup,
-
-    // InputEvent
-    beforeinput,
-
-    // FocusEvent
-    blur,
-    focus,
-    focusin,
-    focusout,
-
-    // CompositionEvent
-    compositionend,
-    compositionstart,
-    compositionupdate,
-
-    // KeyboardEvent
-    keydown,
-    keypress,
-    keyup,
-
-    // TouchEvent
-    touchcancel,
-    touchend,
-    touchmove,
-    touchstart,
-
-    // TransitionEvent
-    transitioncancel,
-    transitionend,
-    transitionrun,
-    transitionstart,
-
-    // WheelEvent
-    wheel,
-
-    // Event
-    beforematch,
-    change,
-    fullscreenchange,
-    fullscreenerror,
-    input,
-    load,
-    scroll,
-    scrollend,
-}
+// #[litenum::to]
+// pub enum Event {
+//     // AnimationEvent
+//     animationcancel,
+//     animationend,
+//     animationiteration,
+//     animationstart,
+// 
+//     // MouseEvent
+//     auxclick,
+//     contextmenu,
+//     dblclick,
+//     mousedown,
+//     mouseenter,
+//     mouseleave,
+//     mousemove,
+//     mouseout,
+//     mouseover,
+//     mouseup,
+// 
+//     // PointerEvent
+//     click,
+//     gotpointercapture,
+//     lostpointercapture,
+//     pointercancel,
+//     pointerdown,
+//     pointerenter,
+//     pointerleave,
+//     pointermove,
+//     pointerout,
+//     pointerover,
+//     pointerrawupdate,
+//     pointerup,
+// 
+//     // InputEvent
+//     beforeinput,
+// 
+//     // FocusEvent
+//     blur,
+//     focus,
+//     focusin,
+//     focusout,
+// 
+//     // CompositionEvent
+//     compositionend,
+//     compositionstart,
+//     compositionupdate,
+// 
+//     // KeyboardEvent
+//     keydown,
+//     keypress,
+//     keyup,
+// 
+//     // TouchEvent
+//     touchcancel,
+//     touchend,
+//     touchmove,
+//     touchstart,
+// 
+//     // TransitionEvent
+//     transitioncancel,
+//     transitionend,
+//     transitionrun,
+//     transitionstart,
+// 
+//     // WheelEvent
+//     wheel,
+// 
+//     // Event
+//     beforematch,
+//     change,
+//     fullscreenchange,
+//     fullscreenerror,
+//     input,
+//     load,
+//     scroll,
+//     scrollend,
+// }
 
 
 //////////////////////////////////////////////////////////////
 
 
-impl Event {
-    fn class(self) -> EventClass {
-        match self {
-            | Event::animationcancel
-            | Event::animationend
-            | Event::animationiteration
-            | Event::animationstart
-            => EventClass::Animation,
-
-            | Event::auxclick
-            | Event::contextmenu
-            | Event::dblclick
-            | Event::mousedown
-            | Event::mouseenter
-            | Event::mouseleave
-            | Event::mousemove
-            | Event::mouseout
-            | Event::mouseover
-            | Event::mouseup
-            => EventClass::Mouse,
-
-            | Event::click
-            | Event::gotpointercapture
-            | Event::lostpointercapture
-            | Event::pointercancel
-            | Event::pointerdown
-            | Event::pointerenter
-            | Event::pointerleave
-            | Event::pointermove
-            | Event::pointerout
-            | Event::pointerover
-            | Event::pointerrawupdate
-            | Event::pointerup
-            => EventClass::Pointer,
-
-            | Event::beforeinput
-            => EventClass::Input,
-
-            | Event::blur
-            | Event::focus
-            | Event::focusin
-            | Event::focusout
-            => EventClass::Focus,
-
-            | Event::compositionend
-            | Event::compositionstart
-            | Event::compositionupdate
-            => EventClass::Composition,
-
-            | Event::keydown
-            | Event::keypress
-            | Event::keyup
-            => EventClass::Keyboard,
-
-            | Event::touchcancel
-            | Event::touchend
-            | Event::touchmove
-            | Event::touchstart
-            => EventClass::Touch,
-
-            | Event::transitioncancel
-            | Event::transitionend
-            | Event::transitionrun
-            | Event::transitionstart
-            => EventClass::Transition,
-
-            | Event::wheel
-            => EventClass::Wheel,
-
-            | Event::beforematch
-            | Event::change
-            | Event::fullscreenchange
-            | Event::fullscreenerror
-            | Event::input
-            | Event::load
-            | Event::scroll
-            | Event::scrollend
-            => EventClass::Event,
-        }
-    }
-}
+// impl Event {
+//     fn class(self) -> EventClass {
+//         match self {
+//             | Event::animationcancel
+//             | Event::animationend
+//             | Event::animationiteration
+//             | Event::animationstart
+//             => EventClass::Animation,
+// 
+//             | Event::auxclick
+//             | Event::contextmenu
+//             | Event::dblclick
+//             | Event::mousedown
+//             | Event::mouseenter
+//             | Event::mouseleave
+//             | Event::mousemove
+//             | Event::mouseout
+//             | Event::mouseover
+//             | Event::mouseup
+//             => EventClass::Mouse,
+// 
+//             | Event::click
+//             | Event::gotpointercapture
+//             | Event::lostpointercapture
+//             | Event::pointercancel
+//             | Event::pointerdown
+//             | Event::pointerenter
+//             | Event::pointerleave
+//             | Event::pointermove
+//             | Event::pointerout
+//             | Event::pointerover
+//             | Event::pointerrawupdate
+//             | Event::pointerup
+//             => EventClass::Pointer,
+// 
+//             | Event::beforeinput
+//             => EventClass::Input,
+// 
+//             | Event::blur
+//             | Event::focus
+//             | Event::focusin
+//             | Event::focusout
+//             => EventClass::Focus,
+// 
+//             | Event::compositionend
+//             | Event::compositionstart
+//             | Event::compositionupdate
+//             => EventClass::Composition,
+// 
+//             | Event::keydown
+//             | Event::keypress
+//             | Event::keyup
+//             => EventClass::Keyboard,
+// 
+//             | Event::touchcancel
+//             | Event::touchend
+//             | Event::touchmove
+//             | Event::touchstart
+//             => EventClass::Touch,
+// 
+//             | Event::transitioncancel
+//             | Event::transitionend
+//             | Event::transitionrun
+//             | Event::transitionstart
+//             => EventClass::Transition,
+// 
+//             | Event::wheel
+//             => EventClass::Wheel,
+// 
+//             | Event::beforematch
+//             | Event::change
+//             | Event::fullscreenchange
+//             | Event::fullscreenerror
+//             | Event::input
+//             | Event::load
+//             | Event::scroll
+//             | Event::scrollend
+//             => EventClass::Event,
+//         }
+//     }
+// }
 
 impl eventHandler {
     pub(crate) fn into_wasm_closure(self) -> Closure<dyn Fn(JsValue)> {

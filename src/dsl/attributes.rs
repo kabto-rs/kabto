@@ -4,19 +4,20 @@ use crate::vdom::{Text, Element, Tag};
 macro_rules! keyvalue {
     (
         global {
-            $( $name:ident $($attr_name:ident)? ),* $(,)?
+            $( $name:ident $(for $attr_name:ident)? ),* $(,)?
         }
         $($tag:ident {
             $( $name2:ident $(for $attr_name2:ident)? ),* $(,)?
         })*
     ) => {
         impl<const T: Tag> Element<T> {$(
-            keyvalue! {@ $name $($attr_name)?}
+            keyvalue! {@ $name $(for $attr_name)?}
         )*}
         $(impl Element<{Tag::$tag}> {$(
             keyvalue! {@ $name2 $(for $attr_name2)?}
         )*})*
     };
+
     (@ $name:ident) => {
         pub fn $name(mut self, value: impl Into<Text>) -> Self {
             if self.attributes.is_none() {
@@ -69,54 +70,79 @@ macro_rules! keyvalue {
     area {
         alt,
         coords,
-        download_filename,
+        download_filename for download,
         href,
+        hreflang,
+        ping,
+        rel,
+        shape,
+        src
+    }
+    base {
+        href
+    }
+    blockquote {
+        cite
     }
 }
 
 macro_rules! boolean {
     (
         global {
-            $($name:ident)*
+            $( $name:ident $(for $attr_name:ident)? ),* $(,)?
         }
         $($tag:ident {
-            $($name2:ident)*
+            $( $name2:ident $(for $attr_name2:ident)? ),* $(,)?
         })*
     ) => {
         impl<const T: Tag> Element<T> {$(
-            pub fn $name(mut self) -> Self {
-                if self.attributes.is_none() {
-                    self.attributes = Some(Default::default())
-                }
-                unsafe {self.attributes.as_mut().unwrap_unchecked()}
-                    .insert(stringify!($name), "".into());
-                self
-            }
+            boolean! {@ $name $(for $attr_name)?}
         )*}
         $(impl Element<{Tag::$tag}> {$(
-            pub fn $name2(mut self) -> Self {
-                if self.attributes.is_none() {
-                    self.attributes = Some(Default::default())
-                }
-                unsafe {self.attributes.as_mut().unwrap_unchecked()}
-                    .insert(stringify!($name2), "".into());
-                self
-            }
+            boolean! {@ $name2 $(for $attr_name2)?}
         )*})*
+    };
+
+    (@ $name:ident) => {
+        pub fn $name(mut self) -> Self {
+            if self.attributes.is_none() {
+                self.attributes = Some(Default::default())
+            }
+            unsafe {self.attributes.as_mut().unwrap_unchecked()}
+                .insert(stringify!($name), "".into());
+            self
+        }
+    };
+    (@ $name:ident for $attr_name:ident) => {
+        pub fn $name(mut self) -> Self {
+            if self.attributes.is_none() {
+                self.attributes = Some(Default::default())
+            }
+            unsafe {self.attributes.as_mut().unwrap_unchecked()}
+                .insert(stringify!($attr_name), "".into());
+            self
+        }
     };
 } boolean! {
     global {
-        autofocus
-        contenteditable
-        hidden
-        insert
-        popover
+        autofocus,
+        contenteditable,
+        hidden,
+        insert,
+        popover,
     }
     a {
-        download
+        download,
+        type_ for type,
     }
     area {
-        download
+        download,
+    }
+    audio {
+        autoplay,
+        controls,
+        loops for loop,
+        muted
     }
 }
 
@@ -203,6 +229,33 @@ macro_rules! enumerated {
             referrerpolicy_strict_origin_when_cross_origin("strict-origin-when-cross-origin")
             referrerpolicy_unsafe_url("unsafe-url")
         ]
+        target [
+            target_self("_self")
+            target_blank("_blank")
+            target_parent("_parent")
+            target_top("_top")
+        ]
+    }
+    area {
+        target [
+            target_self("_self")
+            target_blank("_blank")
+            target_parent("_parent")
+            target_top("_top")
+        ]
+    }
+    audio {
+        crossorigin [
+            crossorigin_anonymous("anonymous")
+            crossorigin_use_credentials("use-credentials")
+        ]
+        preload [
+            preload_none("none")
+            preload_metadata("metadata")
+            preload_auto("auto")
+        ]
+    }
+    base {
         target [
             target_self("_self")
             target_blank("_blank")
