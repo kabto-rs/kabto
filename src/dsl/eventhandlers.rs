@@ -1,5 +1,5 @@
 use crate::vdom::{Element, Tag};
-use crate::vdom::eventhandler::{EventHandler};
+use crate::vdom::eventhandler::EventHandler;
 
 
 macro_rules! register_eventhandlers {

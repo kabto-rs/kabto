@@ -5,11 +5,7 @@
 )]
 
 #![feature(
-    generic_const_exprs,
-    const_trait_impl,
-    extend_one,
     adt_const_params,
-    variant_count,
     tuple_trait,
     fn_traits,
     unboxed_closures,
@@ -18,4 +14,8 @@
 mod dsl;
 mod vdom;
 
-pub use dsl::{tag, nodes::*};
+pub use dsl::tag;
+pub use dsl::nodes::{IntoNodes, NodeCollection};
+
+pub use ::web_sys::{AnimationEvent, MouseEvent, PointerEvent, FocusEvent, CompositionEvent, KeyboardEvent, TouchEvent, TransitionEvent, WheelEvent, Event, UiEvent};
+pub use ::web_sys::wasm_bindgen::{JsValue, JsCast};
