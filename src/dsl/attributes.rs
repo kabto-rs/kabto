@@ -203,6 +203,76 @@ macro_rules! keyvalue {
         content,
         name
     }
+    meter {
+        value,
+        min,
+        max,
+        low,
+        hight,
+        optinum,
+    }
+    object {
+        data,
+        form,
+        height,
+        name,
+        type_ for "type",
+        usemap,
+        width,
+    }
+    ol {
+        start,
+    }
+    optgroup {
+        label
+    }
+    option {
+        label,
+        value,
+    }
+    output {
+        for_ for "for",
+        form,
+        name,
+    }
+    portal {
+        src
+    }
+    progress {
+        max,
+        value,
+    }
+    q {
+        cite
+    }
+    script {
+        integrity,
+        src,
+    }
+    select {
+        autocomplete,
+        form,
+        name,
+        size,
+    }
+    slot {
+        name
+    }
+    source {
+        type_ for "type",
+        src,
+        srcset,
+        sizes,
+        media,
+        height,
+        width,
+    }
+    style {
+        media,
+    }
+    template {
+
+    }
 }
 
 
@@ -292,6 +362,30 @@ macro_rules! boolean {
     }
     link {
         disabled,
+    }
+    ol {
+        reversed,
+    }
+    optgroup {
+        disabled
+    }
+    option {
+        disabled,
+        selected,
+    }
+    script {
+        asynch for "async",
+        defer,
+        nomodule,
+    }
+    select {
+        disabled,
+        multiple,
+        required,
+    }
+    template {
+        shadowrootclonable,
+        shadowrootdelegatesfocus,
     }
 }
 
@@ -587,6 +681,53 @@ macro_rules! enumerated {
             http_equiv_content_type("content-type")
             http_equiv_default_style("default-style")
             http_equiv_refresh("refresh")
+        ]
+    }
+    ol {
+        "type" [
+            type_a("a")
+            type_A("A")
+            type_i("i")
+            type_I("i")
+            type_1("1")
+        ]
+    }
+    portal {
+        "referrerpolicy" [
+            referrerpolicy_no_referrer("no-referrer")
+            referrerpolicy_no_referrer_when_downgrade("no-referrer-when-downgrade")
+            referrerpolicy_origin("origin")
+            referrerpolicy_origin_when_crossorigin("origin-when-cross-origin")
+            referrerpolicy_same_origin("same-origin")
+            referrerpolicy_strict_origin("strict-origin")
+            referrerpolicy_strict_origin_when_cross_origin("strict-origin-when-cross-origin")
+            referrerpolicy_unsafe_url("unsafe-url")
+        ]
+    }
+    script {
+        "crossorigin" [
+            crossorigin_anonymous("anonymous")
+            crossorigin_use_credentials("use-credentials")
+        ]
+        "referrerpolicy" [
+            referrerpolicy_no_referrer("no-referrer")
+            referrerpolicy_no_referrer_when_downgrade("no-referrer-when-downgrade")
+            referrerpolicy_origin("origin")
+            referrerpolicy_origin_when_crossorigin("origin-when-cross-origin")
+            referrerpolicy_same_origin("same-origin")
+            referrerpolicy_strict_origin("strict-origin")
+            referrerpolicy_strict_origin_when_cross_origin("strict-origin-when-cross-origin")
+            referrerpolicy_unsafe_url("unsafe-url")
+        ]
+        "type" [
+            type_module("module")
+            type_importmap("importmap")
+        ]
+    }
+    template {
+        "shadowrootmode" [
+            shadowrootmode_open("open")
+            shadowrootmode_closed("closed")
         ]
     }
 }
