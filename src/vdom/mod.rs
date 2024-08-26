@@ -27,7 +27,7 @@ const _: () = {
     }
     impl From<String> for Text {
         fn from(value: String) -> Self {
-            Self(value.to_string().into())
+            Self(value.into())
         }
     }
     impl From<&'static str> for Text {
