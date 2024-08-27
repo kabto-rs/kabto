@@ -1,6 +1,8 @@
 mod rcx;
+use rcx::{RcX, WeakX};
 
-use self::rcx::{RcX, WeakX};
+pub(crate) use crate::internals::Internals;
+
 use crate::{document, JSResult, JsCast, UnwrapThrowExt};
 use crate::vdom::{Node, Props};
 use ::web_sys::Node as DOM;
@@ -23,16 +25,6 @@ pub(crate) struct FiberNode {
 pub(crate) enum Kind {
     TEXT_ELEMENT,
     Element(&'static str)
-}
-
-#[derive(Clone)]
-pub(crate) struct Internals {
-    next_unit_of_work: Option<(/* todo */)>,
-    current_root:      Option<(/* todo */)>,
-    wip_rot:           Option<(/* todo */)>,
-    deletions:         Option<(/* todo */)>,
-    wip_fiber:         Option<(/* todo */)>,
-    hook_index:        Option<(/* todo */)>,
 }
 
 impl Kind {
@@ -117,7 +109,7 @@ impl Fiber {
             if next.sibling.is_some() {
                 return Ok(Some(next.sibling.as_ref().unwrap().clone()))
             }
-            maybe_next = next.parent.as_ref().map(WeakX::upgrade).flatten()
+            maybe_next = next.parent.as_ref().map(WeakX::upgrade).transpose()?
         }
 
         Ok(None)

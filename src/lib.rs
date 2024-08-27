@@ -9,14 +9,17 @@
     tuple_trait,
     fn_traits,
     unboxed_closures,
+    sync_unsafe_cell,
 )]
 
 mod dsl;
 mod fiber;
 mod scheduler;
 mod vdom;
+mod internals;
 
 pub use dsl::tag;
+pub(crate) use internals::Internals;
 
 pub use ::web_sys::wasm_bindgen::{JsValue, JsCast, UnwrapThrowExt};
 pub mod event {pub use ::web_sys::{AnimationEvent, MouseEvent, PointerEvent, FocusEvent, CompositionEvent, KeyboardEvent, TouchEvent, TransitionEvent, WheelEvent, Event, UiEvent};}
@@ -40,14 +43,10 @@ pub fn render(
     nodes: impl Component,
     root:  &web_sys::Node
 ) -> Result<(), JsValue> {
-    use dsl::nodes::Nodes;
+    // SAFETY: single thread
+    let internals = unsafe {Internals::get()};
 
-    match nodes.into_nodes() {
-        Nodes::None        => Ok(()),
-        Nodes::Some(node)  => node.render_to(root),
-        Nodes::Many(nodes) => {
-            for node in nodes {node.render_to(root)?}
-            Ok(())
-        }
-    }
+    internals.next_unit_of_work = Some(());
+    
+    internals.flush_sync()
 }
