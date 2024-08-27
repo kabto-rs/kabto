@@ -1,25 +1,21 @@
 pub(crate) mod eventhandler;
 
 pub(crate) use self::eventhandler::eventHandler;
-use std::{borrow::Cow, collections::HashMap, marker::PhantomData};
+use std::{borrow::Cow, collections::HashMap, marker::PhantomData, rc::Rc};
 use web_sys::wasm_bindgen::{JsValue, JsCast};
 
 
+#[derive(Clone)]
 pub enum Node {
     Text(Text),
     Element(Element<()>),
 }
 
-//#[derive(Clone)]
+#[derive(Clone)]
 pub struct Text(
-    Cow<'static, str>
+    Rc<Cow<'static, str>>
 );
 const _: () = {
-    impl Into<Cow<'static, str>> for Text {
-        fn into(self) -> Cow<'static, str> {
-            self.0
-        }
-    }
     impl std::ops::Deref for Text {
         type Target = str;
         fn deref(&self) -> &Self::Target {
@@ -28,35 +24,37 @@ const _: () = {
     }
     impl From<String> for Text {
         fn from(value: String) -> Self {
-            Self(value.into())
+            Self(Rc::new(value.into()))
         }
     }
     impl From<&'static str> for Text {
         fn from(value: &'static str) -> Self {
-            Self(value.into())
+            Self(Rc::new(value.into()))
         }
     }
     impl From<bool> for Text {
         fn from(value: bool) -> Self {
-            Self((if value {"true"} else {"false"}).into())
+            Self(Rc::new((if value {"true"} else {"false"}).into()))
         }
     }
     macro_rules! integer_value {
         ($($t:ty)*) => {$(
             impl From<$t> for Text {
                 fn from(value: $t) -> Self {
-                    Self(value.to_string().into())
+                    Self(Rc::new(value.to_string().into()))
                 }
             }
         )*};
     } integer_value! { u8 usize i32 }
 };
 
+#[derive(Clone)]
 pub struct Element<T: Tag> {t: PhantomData<fn()->T>,
     pub(crate) tag:   &'static str,
     pub(crate) props: Props,
 }
 
+#[derive(Clone)]
 pub struct Props {
     pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
     pub(crate) eventhandlers: Option<Box<HashMap<&'static str, eventHandler>>>,
@@ -197,15 +195,21 @@ macro_rules! typed_tag {
     wbr
 }
 
+impl Props {
+    pub(crate) const fn new() -> Self {
+        Props {
+            attributes:    None,
+            eventhandlers: None,
+            children:      Vec::new()
+        }
+    }
+}
+
 impl<T: Tag> Element<T> {
     pub(crate) const fn new() -> Self {
         Element {t: PhantomData,
             tag:   T::NAME,
-            props: Props {
-                attributes:    None,
-                eventhandlers: None,
-                children:      Vec::new()
-            }
+            props: Props::new()
         }
     }
 
@@ -215,16 +219,21 @@ impl<T: Tag> Element<T> {
 }
 
 impl Node {
-    pub fn render_to(self, container: &web_sys::Node) -> Result<(), JsValue> {
-        let document = crate::document();
+    pub(crate) fn props(&self) -> Option<&Props> {
+        match self {
+            Self::Element(e) => Some(&e.props),
+            Self::Text(_)    => None
+        }
+    }
 
+    pub fn render_to(self, container: &web_sys::Node) -> Result<(), JsValue> {
         match self {
             Node::Text(text) => {
-                let node = document.create_text_node(&text);
+                let node = crate::document().create_text_node(&text);
                 container.append_child(&node)?;
             }
             Node::Element(Element { t:_, tag, props }) => {
-                let node = document.create_element(tag)?; {
+                let node = crate::document().create_element(tag)?; {
                     if let Some(attributes) = props.attributes {                        
                         for (name, value) in *attributes {
                             node.set_attribute(name, &value)?;

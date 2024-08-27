@@ -2,8 +2,7 @@ mod rcx;
 
 use self::rcx::{RcX, WeakX};
 use crate::{document, JSResult, JsCast, UnwrapThrowExt};
-use crate::vdom::{eventHandler, Text};
-use std::collections::HashMap;
+use crate::vdom::{Node, Props};
 use ::web_sys::Node as DOM;
 
 
@@ -12,15 +11,12 @@ pub(crate) struct Fiber {
 }
 
 pub(crate) struct FiberNode {
-    pub(crate) kind:          Kind,
-    pub(crate) dom:           Option<DOM>,
-    pub(crate) parent:        Option<WeakX<FiberNode>>,
-    pub(crate) sibling:       Option<RcX<FiberNode>>,
-    pub(crate) child:         Option<RcX<FiberNode>>,
-    /* props */
-    pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
-    pub(crate) eventhandlers: Option<Box<HashMap<&'static str, eventHandler>>>,
-    pub(crate) children:      Vec<RcX<FiberNode>>,
+    pub(crate) kind:    Kind,
+    pub(crate) props:   Props,
+    pub(crate) dom:     Option<DOM>,
+    pub(crate) parent:  Option<WeakX<FiberNode>>,
+    pub(crate) sibling: Option<RcX<FiberNode>>,
+    pub(crate) child:   Option<RcX<FiberNode>>,
 }
 
 #[derive(Clone)]
@@ -39,6 +35,15 @@ pub(crate) struct Internals {
     hook_index:        Option<(/* todo */)>,
 }
 
+impl Kind {
+    fn of(node: &Node) -> Self {
+        match node {
+            Node::Element(e) => Self::Element(e.tag),
+            Node::Text(_)    => Self::TEXT_ELEMENT
+        }
+    }
+}
+
 impl FiberNode {
     fn dom(&self) -> &DOM {
         self.dom.as_ref().expect_throw("invalid `dom`")
@@ -52,12 +57,12 @@ impl FiberNode {
             }
             Kind::Element(tag) => {
                 let element = document().create_element(tag)?;
-                if let Some(attributes) = &self.attributes {
+                if let Some(attributes) = &self.props.attributes {
                     for (name, value) in &**attributes {
                         element.set_attribute(name, &value)?;
                     }
                 }
-                if let Some(eventhandlers) = &self.eventhandlers {
+                if let Some(eventhandlers) = &self.props.eventhandlers {
                     for (event, handler) in &**eventhandlers {
                         let handler = handler.clone().into_wasm_closure();
                         element.add_event_listener_with_callback(event, handler.into_js_value().unchecked_ref())?;
@@ -83,8 +88,17 @@ impl Fiber {
         }
 
         // let mut prev_sibling = None;
-        for i in 0..this.children.len() {
-            let mut next = this.children[i].clone();
+        for i in 0..this.props.children.len() {
+            let next = this.props.children[i].clone();
+            let mut next = FiberNode {
+                kind:    Kind::of(&next),
+                props:   next.props().cloned().unwrap_or_else(Props::new),
+                dom:     None,
+                parent:  Some(this.downgrade()),
+                sibling: None,
+                child:   None
+            };
+
             next.parent = Some(this.downgrade());
 
 
