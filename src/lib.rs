@@ -22,6 +22,7 @@ mod util;
 pub use dsl::tag;
 pub(crate) use internals::Internals;
 
+pub use ::web_sys::{console, Text};
 pub use ::web_sys::wasm_bindgen::{JsValue, JsCast, UnwrapThrowExt};
 pub mod event {pub use ::web_sys::{AnimationEvent, MouseEvent, PointerEvent, FocusEvent, CompositionEvent, KeyboardEvent, TouchEvent, TransitionEvent, WheelEvent, Event, UiEvent};}
 
@@ -37,21 +38,28 @@ pub fn document() -> ::web_sys::Document {
     window().document().expect_throw("`document` not found")
 }
 
+#[macro_export]
+macro_rules! console_log {
+    ($($t:tt)*) => {
+        $crate::console::log_1(&$crate::Text::new_with_data(
+            &format_args!($($t)*).to_string()
+        ).unwrap())
+    };
+}
+
 pub trait Component: dsl::nodes::IntoNodes {}
 impl<IN: dsl::nodes::IntoNodes> Component for IN {}
 
 pub fn render(
     nodes: impl Component,
-    root:  &web_sys::Node
+    root:  impl Into<web_sys::Node>
 ) -> Result<(), JsValue> {
     use fiber::{Fiber, FiberNode, Kind};
     use vdom::Props;
 
-    let mut internals = Internals::get();
-
-    internals.next_unit_of_work = Some(Fiber::from(FiberNode {
-        kind:    Kind::Element(""),
-        dom:     Some(root.clone()),
+    let root = Fiber::from(FiberNode {
+        kind:    Kind::Element("#"),
+        dom:     Some(root.into()),
         props:   Props {
             attributes:    None,
             eventhandlers: None,
@@ -60,7 +68,16 @@ pub fn render(
         parent:  None,
         sibling: None,
         child:   None,
-    }));
-    
-    internals.flush_sync()
+    });
+
+    let mut internals = Internals::get();
+    internals.next_unit_of_work = Some(root.clone());
+    internals.flush_sync()?;
+
+    root.forget();
+    Ok({
+        #[cfg(debug_assertions)] {
+            console_log!("`render` finished")
+        }
+    })
 }

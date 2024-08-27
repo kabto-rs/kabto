@@ -19,6 +19,6 @@ fn app() -> impl kabto::Component {
 
 fn main() {
     let root = document().get_element_by_id("root").unwrap();
-    kabto::render(app(), &root).unwrap()
+    kabto::render(app(), root).unwrap()
 }
 

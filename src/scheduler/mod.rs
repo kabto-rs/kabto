@@ -8,6 +8,12 @@ pub(crate) fn schedule_callback(
     perform_unit_of_work: fn(Fiber, Internals)->JSResult<Option<Fiber>>,
     internals:            Internals,
 ) -> JSResult<()> {
+    #[cfg(debug_assertions)] {
+        web_sys::console::log_1(web_sys::Text::new_with_data(
+            "`schedule_callback` called"
+        )?.as_ref())
+    }
+
     window().request_idle_callback(Closure::<dyn Fn(web_sys::IdleDeadline)->JSResult<()>>::new(
         move |deadline| {
             work_loop(deadline, commit_root, perform_unit_of_work, internals.clone())
@@ -23,6 +29,12 @@ fn work_loop(
     perform_unit_of_work: fn(Fiber, Internals)->JSResult<Option<Fiber>>,
     mut internals:        Internals,
 ) -> JSResult<()> {
+    #[cfg(debug_assertions)] {
+        web_sys::console::log_1(web_sys::Text::new_with_data(
+            "`work_loop` called"
+        )?.as_ref())
+    }
+
     let mut should_yield = false;
     while internals.next_unit_of_work.is_some() && !should_yield {
         internals.next_unit_of_work = perform_unit_of_work(

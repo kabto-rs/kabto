@@ -24,6 +24,10 @@ impl<T> RcX<T> {
     pub(crate) fn downgrade(&self) -> WeakX<T> {
         WeakX(Rc::downgrade(&self.0))
     }
+
+    pub(crate) fn strong_count(&self) -> usize {
+        Rc::strong_count(&self.0)
+    }
 }
 impl<T> std::ops::Deref for RcX<T> {
     type Target = T;
