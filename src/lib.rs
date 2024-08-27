@@ -57,6 +57,8 @@ pub fn render(
     use fiber::{Fiber, FiberNode};
     use vdom::{Node, Element, Props};
 
+    let mut internals = Internals::get();
+
     let root = Fiber::from(FiberNode {
         vdom: Node::Element(Element::with(Props {
             attributes:    None,
@@ -64,12 +66,12 @@ pub fn render(
             children:      nodes.into_nodes().into()
         })),
         dom: Some(root.into()),
-        parent:  None,
-        sibling: None,
-        child:   None,
+        parent:    None,
+        sibling:   None,
+        child:     None,
+        alternate: internals.current_root.clone(),
     });
 
-    let mut internals = Internals::get();
     internals.next_unit_of_work = Some(root.clone());
     internals.wip_root          = Some(root.clone());
     internals.flush_sync()?;

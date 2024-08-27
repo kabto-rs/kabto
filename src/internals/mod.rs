@@ -43,7 +43,6 @@ impl Internals {
         fn commit_work(fiber: Option<Fiber>) {            
             if let Some(fiber) = fiber {
                 use web_sys::wasm_bindgen::UnwrapThrowExt;
-
                 fiber.parent().unwrap().dom().append_child(fiber.dom())
                     .expect_throw("failed to appendChild");
                 commit_work(fiber.child());
@@ -55,6 +54,7 @@ impl Internals {
             return
         }
         commit_work(self.wip_root.as_ref().unwrap().child());
+        self.current_root = self.wip_root.clone();
         self.wip_root = None
     }
 
@@ -73,7 +73,7 @@ mod internal {
     #[derive(Clone)]
     pub(crate) struct Internals {
         pub(crate) next_unit_of_work: Option<Fiber>,
-        pub(crate) current_root:      Option<(/* todo */)>,
+        pub(crate) current_root:      Option<Fiber>,
         pub(crate) wip_root:          Option<Fiber>,
         pub(crate) deletions:         Option<(/* todo */)>,
         pub(crate) wip_fiber:         Option<(/* todo */)>,
