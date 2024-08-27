@@ -2,7 +2,7 @@ mod eventhandler;
 pub(crate) use eventhandler::{eventHandler, EventHandler};
 
 use crate::util::Text;
-use std::{borrow::Cow, collections::HashMap, marker::PhantomData, rc::Rc};
+use std::{collections::HashMap, marker::PhantomData};
 use ::web_sys::wasm_bindgen::{JsValue, JsCast};
 
 

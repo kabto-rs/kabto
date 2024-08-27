@@ -1,5 +1,5 @@
 use crate::{window, JsCast, JSResult, Internals};
-use crate::fiber::{Fiber, FiberNode, RcX};
+use crate::fiber::Fiber;
 use ::web_sys::{IdleDeadline, wasm_bindgen::closure::Closure};
 
 
@@ -13,7 +13,7 @@ pub(crate) fn schedule_callback(
             work_loop(deadline, commit_root, perform_unit_of_work, internals.clone())
         }
     ).into_js_value().unchecked_ref())?;
-    
+
     Ok(())
 }
 

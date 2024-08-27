@@ -24,11 +24,6 @@ impl<T> RcX<T> {
     pub(crate) fn downgrade(&self) -> WeakX<T> {
         WeakX(Rc::downgrade(&self.0))
     }
-
-    // SAFETY: single thread
-    pub(crate) unsafe fn as_mut(&self) -> &mut T {
-        unsafe {&mut *self.0.get()}
-    }
 }
 impl<T> std::ops::Deref for RcX<T> {
     type Target = T;
