@@ -6,9 +6,8 @@ use crate::vdom::{Node, Props};
 use ::web_sys::Node as DOM;
 
 
-pub(crate) struct Fiber {
-    root: RcX<FiberNode>
-}
+#[derive(Clone)]
+pub(crate) struct Fiber(RcX<FiberNode>);
 
 #[derive(Clone)]
 pub(crate) struct FiberNode {
@@ -19,10 +18,23 @@ pub(crate) struct FiberNode {
     pub(crate) sibling: Option<RcX<FiberNode>>,
     pub(crate) child:   Option<RcX<FiberNode>>,
 }
-/// SAFETY: single thread
 const _: () = {
+    /// SAFETY: single thread
     unsafe impl Send for FiberNode {}
     unsafe impl Sync for FiberNode {}
+
+    impl std::ops::Deref for Fiber {
+        type Target = FiberNode;
+        fn deref(&self) -> &Self::Target {
+            &self.0
+        }
+    }
+
+    impl From<FiberNode> for Fiber {
+        fn from(node: FiberNode) -> Self {
+            Self(RcX::new(node))
+        }
+    }
 };
 
 #[derive(Clone)]
@@ -40,39 +52,9 @@ impl Kind {
     }
 }
 
-impl FiberNode {
-    fn dom(&self) -> &DOM {
-        self.dom.as_ref().expect_throw("invalid `dom`")
-    }
-
-    fn create_dom(&self) -> JSResult<DOM> {
-        match self.kind {
-            Kind::TEXT_ELEMENT => {
-                let text = document().create_text_node("");
-                Ok(text.unchecked_into())
-            }
-            Kind::Element(tag) => {
-                let element = document().create_element(tag)?;
-                if let Some(attributes) = &self.props.attributes {
-                    for (name, value) in &**attributes {
-                        element.set_attribute(name, value)?;
-                    }
-                }
-                if let Some(eventhandlers) = &self.props.eventhandlers {
-                    for (event, handler) in &**eventhandlers {
-                        let handler = handler.clone().into_wasm_closure();
-                        element.add_event_listener_with_callback(event, handler.into_js_value().unchecked_ref())?;
-                    }
-                }
-                Ok(element.unchecked_into())
-            }
-        }
-    }
-}
-
 impl Fiber {
-    pub(crate) fn perform_unit_of_work(mut self, internals: Internals) -> JSResult<Option<RcX<FiberNode>>> {
-        let Fiber { root:this } = &mut self;
+    pub(crate) fn perform_unit_of_work(mut self, internals: Internals) -> JSResult<Option<Fiber>> {
+        let Fiber(this) = &mut self;
 
         if this.dom.is_none() {
             this.dom = Some(this.create_dom()?);
@@ -105,17 +87,47 @@ impl Fiber {
         }
 
         if this.child.is_some() {
-            return Ok(Some(this.child.as_ref().unwrap().clone()))
+            return Ok(Some(Fiber(this.child.as_ref().unwrap().clone())))
         }
 
         let mut maybe_next = Some(this.clone());
         while let Some(next) = &maybe_next {
             if next.sibling.is_some() {
-                return Ok(Some(next.sibling.as_ref().unwrap().clone()))
+                return Ok(Some(Fiber(next.sibling.as_ref().unwrap().clone())))
             }
             maybe_next = next.parent.as_ref().map(WeakX::upgrade).transpose()?
         }
 
         Ok(None)
+    }
+}
+
+impl FiberNode {
+    fn dom(&self) -> &DOM {
+        self.dom.as_ref().expect_throw("invalid `dom`")
+    }
+
+    fn create_dom(&self) -> JSResult<DOM> {
+        match self.kind {
+            Kind::TEXT_ELEMENT => {
+                let text = document().create_text_node("");
+                Ok(text.unchecked_into())
+            }
+            Kind::Element(tag) => {
+                let element = document().create_element(tag)?;
+                if let Some(attributes) = &self.props.attributes {
+                    for (name, value) in &**attributes {
+                        element.set_attribute(name, value)?;
+                    }
+                }
+                if let Some(eventhandlers) = &self.props.eventhandlers {
+                    for (event, handler) in &**eventhandlers {
+                        let handler = handler.clone().into_wasm_closure();
+                        element.add_event_listener_with_callback(event, handler.into_js_value().unchecked_ref())?;
+                    }
+                }
+                Ok(element.unchecked_into())
+            }
+        }
     }
 }

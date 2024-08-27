@@ -44,12 +44,12 @@ pub fn render(
     nodes: impl Component,
     root:  &web_sys::Node
 ) -> Result<(), JsValue> {
-    use fiber::{FiberNode, Kind};
+    use fiber::{Fiber, FiberNode, Kind};
     use vdom::Props;
 
     let mut internals = Internals::get();
 
-    internals.next_unit_of_work = Some(FiberNode {
+    internals.next_unit_of_work = Some(Fiber::from(FiberNode {
         kind:    Kind::Element(""),
         dom:     Some(root.clone()),
         props:   Props {
@@ -60,7 +60,7 @@ pub fn render(
         parent:  None,
         sibling: None,
         child:   None,
-    });
+    }));
     
     internals.flush_sync()
 }

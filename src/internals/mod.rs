@@ -53,11 +53,11 @@ impl Internals {
 }
 
 mod internal {
-    use crate::fiber::FiberNode;
+    use crate::fiber::Fiber;
 
     #[derive(Clone)]
     pub(crate) struct Internals {
-        pub(crate) next_unit_of_work: Option<FiberNode>,
+        pub(crate) next_unit_of_work: Option<Fiber>,
         pub(crate) current_root:      Option<(/* todo */)>,
         pub(crate) wip_rot:           Option<(/* todo */)>,
         pub(crate) deletions:         Option<(/* todo */)>,
