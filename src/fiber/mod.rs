@@ -1,18 +1,29 @@
-use crate::{document, JSResult, JsCast, JsValue};
-use crate::vdom::{eventHandler, Node, Text};
+mod rcx;
+
+use self::rcx::{RcX, WeakX};
+use crate::{document, JSResult, JsCast, UnwrapThrowExt};
+use crate::vdom::{eventHandler, Text};
 use std::collections::HashMap;
-use std::rc::{Rc, Weak};
 use ::web_sys::Node as DOM;
 
 
 pub(crate) struct Fiber {
-    pub(crate) kind:          Kind,
-    pub(crate) dom:           Option<DOM>,
-    pub(crate) parent:        Option<Weak<Fiber>>,
-    pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
-    pub(crate) eventhandlers: Option<Box<HashMap<&'static str, eventHandler>>>,
+    root: RcX<FiberNode>
 }
 
+pub(crate) struct FiberNode {
+    pub(crate) kind:          Kind,
+    pub(crate) dom:           Option<DOM>,
+    pub(crate) parent:        Option<WeakX<FiberNode>>,
+    pub(crate) sibling:       Option<RcX<FiberNode>>,
+    pub(crate) child:         Option<RcX<FiberNode>>,
+    /* props */
+    pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
+    pub(crate) eventhandlers: Option<Box<HashMap<&'static str, eventHandler>>>,
+    pub(crate) children:      Vec<RcX<FiberNode>>,
+}
+
+#[derive(Clone)]
 pub(crate) enum Kind {
     TEXT_ELEMENT,
     Element(&'static str)
@@ -28,7 +39,11 @@ pub(crate) struct Internals {
     hook_index:        Option<(/* todo */)>,
 }
 
-impl Fiber {
+impl FiberNode {
+    fn dom(&self) -> &DOM {
+        self.dom.as_ref().expect_throw("invalid `dom`")
+    }
+
     fn create_dom(&self) -> JSResult<DOM> {
         match self.kind {
             Kind::TEXT_ELEMENT => {
@@ -52,14 +67,27 @@ impl Fiber {
             }
         }
     }
+}
 
-    fn perform_unit_of_work(mut self, internals: Internals) -> JSResult<()> {
-        if self.dom.is_none() {
-            self.dom = Some(self.create_dom()?);
+impl Fiber {
+    fn perform_unit_of_work(&mut self, internals: Internals) -> JSResult<()> {
+        let Fiber { root:this } = self;
+
+        if this.dom.is_none() {
+            this.dom = Some(this.create_dom()?);
         }
 
-        if let Some(parent) = &mut self.parent {
-            // parent = 
+        if let Some(parent) = &this.parent {
+            parent.upgrade().expect_throw("invalid parent of fiber")
+                .dom().append_child(this.dom())?;
+        }
+
+        // let mut prev_sibling = None;
+        for i in 0..this.children.len() {
+            let mut next = this.children[i].clone();
+            next.parent = Some(this.downgrade());
+
+
         }
 
         Ok(())

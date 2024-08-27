@@ -74,7 +74,7 @@ impl<Children: NodeCollection> FnOnce<Children> for Node {
     extern "rust-call" fn call_once(self, children: Children) -> Self::Output {
         let Node::Element(mut element) = self else {unreachable!()};
         for nodes in children.collect() {
-            nodes.join_into(&mut element.children);
+            nodes.join_into(&mut element.props.children);
         }
         Node::Element(element)
     }
@@ -83,7 +83,7 @@ impl<T: Tag, Children: NodeCollection> FnOnce<Children> for Element<T> {
     type Output = Node;
     extern "rust-call" fn call_once(mut self, children: Children) -> Self::Output {
         for nodes in children.collect() {
-            nodes.join_into(&mut self.children);
+            nodes.join_into(&mut self.props.children);
         }
         self.into_node()
     }

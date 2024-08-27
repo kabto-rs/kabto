@@ -10,6 +10,7 @@ pub enum Node {
     Element(Element<()>),
 }
 
+//#[derive(Clone)]
 pub struct Text(
     Cow<'static, str>
 );
@@ -52,10 +53,14 @@ const _: () = {
 };
 
 pub struct Element<T: Tag> {t: PhantomData<fn()->T>,
-    pub(crate) tag:           &'static str,
+    pub(crate) tag:   &'static str,
+    pub(crate) props: Props,
+}
+
+pub struct Props {
     pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
     pub(crate) eventhandlers: Option<Box<HashMap<&'static str, eventHandler>>>,
-    pub(crate) children:      Vec<Node>
+    pub(crate) children:      Vec<Node>,
 }
 
 macro_rules! typed_tag {
@@ -195,10 +200,12 @@ macro_rules! typed_tag {
 impl<T: Tag> Element<T> {
     pub(crate) const fn new() -> Self {
         Element {t: PhantomData,
-            tag:           T::NAME,
-            attributes:    None,
-            eventhandlers: None,
-            children:      Vec::new()
+            tag:   T::NAME,
+            props: Props {
+                attributes:    None,
+                eventhandlers: None,
+                children:      Vec::new()
+            }
         }
     }
 
@@ -216,20 +223,20 @@ impl Node {
                 let node = document.create_text_node(&text);
                 container.append_child(&node)?;
             }
-            Node::Element(Element { t:_, tag, attributes, eventhandlers, children }) => {
+            Node::Element(Element { t:_, tag, props }) => {
                 let node = document.create_element(tag)?; {
-                    if let Some(attributes) = attributes {                        
+                    if let Some(attributes) = props.attributes {                        
                         for (name, value) in *attributes {
                             node.set_attribute(name, &value)?;
                         }
                     }
-                    if let Some(eventhandlers) = eventhandlers {                        
+                    if let Some(eventhandlers) = props.eventhandlers {                        
                         for (event, handler) in *eventhandlers {
                             let handler = handler.into_wasm_closure();
                             node.add_event_listener_with_callback(event, handler.into_js_value().unchecked_ref())?;
                         }
                     }
-                    for child in children {
+                    for child in props.children {
                         child.render_to(&node)?;
                     }
                 }

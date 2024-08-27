@@ -18,7 +18,7 @@ mod vdom;
 
 pub use dsl::tag;
 
-pub use ::web_sys::wasm_bindgen::{JsValue, JsCast};
+pub use ::web_sys::wasm_bindgen::{JsValue, JsCast, UnwrapThrowExt};
 pub mod event {pub use ::web_sys::{AnimationEvent, MouseEvent, PointerEvent, FocusEvent, CompositionEvent, KeyboardEvent, TouchEvent, TransitionEvent, WheelEvent, Event, UiEvent};}
 
 pub type JSResult<T> = Result<T, JsValue>;

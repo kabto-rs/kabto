@@ -20,20 +20,20 @@ macro_rules! keyvalue {
 
     (@ $name:ident) => {
         pub fn $name(mut self, value: impl Into<Text>) -> Self {
-            if self.attributes.is_none() {
-                self.attributes = Some(Default::default())
+            if self.props.attributes.is_none() {
+                self.props.attributes = Some(Default::default())
             }
-            unsafe {self.attributes.as_mut().unwrap_unchecked()}
+            unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
                 .insert(stringify!($name), value.into());
             self
         }
     };
     (@ $name:ident for $attr_name:literal) => {
         pub fn $name(mut self, value: impl Into<Text>) -> Self {
-            if self.attributes.is_none() {
-                self.attributes = Some(Default::default())
+            if self.props.attributes.is_none() {
+                self.props.attributes = Some(Default::default())
             }
-            unsafe {self.attributes.as_mut().unwrap_unchecked()}
+            unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
                 .insert($attr_name, value.into());
             self
         }
@@ -318,20 +318,20 @@ macro_rules! boolean {
 
     (@ $name:ident) => {
         pub fn $name(mut self) -> Self {
-            if self.attributes.is_none() {
-                self.attributes = Some(Default::default())
+            if self.props.attributes.is_none() {
+                self.props.attributes = Some(Default::default())
             }
-            unsafe {self.attributes.as_mut().unwrap_unchecked()}
+            unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
                 .insert(stringify!($name), "".into());
             self
         }
     };
     (@ $name:ident for $attr_name:literal) => {
         pub fn $name(mut self) -> Self {
-            if self.attributes.is_none() {
-                self.attributes = Some(Default::default())
+            if self.props.attributes.is_none() {
+                self.props.attributes = Some(Default::default())
             }
-            unsafe {self.attributes.as_mut().unwrap_unchecked()}
+            unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
                 .insert($attr_name, "".into());
             self
         }
@@ -442,20 +442,20 @@ macro_rules! enumerated {
     ) => {
         impl<T: Tag> Element<T> {$(
             $(pub fn $method(mut self) -> Self {
-                if self.attributes.is_none() {
-                    self.attributes = Some(Default::default())
+                if self.props.attributes.is_none() {
+                    self.props.attributes = Some(Default::default())
                 }
-                unsafe {self.attributes.as_mut().unwrap_unchecked()}
+                unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
                     .insert($name, $value.into());
                 self
             })*
         )*}
         $(impl Element<tag::$tag> {$(
             $(pub fn $method2(mut self) -> Self {
-                if self.attributes.is_none() {
-                    self.attributes = Some(Default::default())
+                if self.props.attributes.is_none() {
+                    self.props.attributes = Some(Default::default())
                 }
-                unsafe {self.attributes.as_mut().unwrap_unchecked()}
+                unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
                     .insert($name2, $value2.into());
                 self
         })*)*})*

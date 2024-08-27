@@ -13,11 +13,11 @@ macro_rules! register_eventhandlers {
     ) => {
         impl<T: Tag> Element<T> {$(
             pub fn $handler<__>(mut self, f: impl EventHandler<web_sys::$event_object, __>) -> Self {
-                if self.eventhandlers.is_none() {
-                    self.eventhandlers = Some(Default::default())
+                if self.props.eventhandlers.is_none() {
+                    self.props.eventhandlers = Some(Default::default())
                 }
 
-                unsafe {self.eventhandlers.as_mut().unwrap_unchecked()}
+                unsafe {self.props.eventhandlers.as_mut().unwrap_unchecked()}
                     .insert(stringify!($event_name), f.into_eventhandler());
 
                 self
@@ -25,11 +25,11 @@ macro_rules! register_eventhandlers {
         )*}
         $(impl Element<tag::$tag> {$(
             pub fn $handler2<__>(mut self, f: impl EventHandler<web_sys::$event_object2, __>) -> Self {
-                if self.eventhandlers.is_none() {
-                    self.eventhandlers = Some(Default::default())
+                if self.props.eventhandlers.is_none() {
+                    self.props.eventhandlers = Some(Default::default())
                 }
 
-                unsafe {self.eventhandlers.as_mut().unwrap_unchecked()}
+                unsafe {self.props.eventhandlers.as_mut().unwrap_unchecked()}
                     .insert(stringify!($event_name2), f.into_eventhandler());
 
                 self
