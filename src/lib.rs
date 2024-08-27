@@ -17,6 +17,7 @@ mod fiber;
 mod scheduler;
 mod vdom;
 mod internals;
+mod util;
 
 pub use dsl::tag;
 pub(crate) use internals::Internals;
@@ -46,8 +47,7 @@ pub fn render(
     use fiber::{FiberNode, Kind};
     use vdom::Props;
 
-    // SAFETY: single thread
-    let internals = unsafe {Internals::get()};
+    let mut internals = Internals::get();
 
     internals.next_unit_of_work = Some(FiberNode {
         kind:    Kind::Element(""),

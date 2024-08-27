@@ -1,4 +1,5 @@
-use crate::vdom::{Text, Element, Tag, tag};
+use crate::vdom::{Element, Tag, tag};
+use crate::util::Text;
 
 
 macro_rules! keyvalue {

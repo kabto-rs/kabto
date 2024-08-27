@@ -1,4 +1,5 @@
-use crate::vdom::{Element, Node, Tag, Text};
+use crate::vdom::{Element, Node, Tag};
+use crate::util::Text;
 
 
 pub trait IntoNodes {

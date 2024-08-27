@@ -1,5 +1,4 @@
-mod rcx;
-pub(crate) use rcx::{RcX, WeakX};
+pub(crate) use crate::util::{RcX, WeakX};
 
 use crate::internals::Internals;
 use crate::{document, JSResult, JsCast, UnwrapThrowExt};
@@ -20,6 +19,11 @@ pub(crate) struct FiberNode {
     pub(crate) sibling: Option<RcX<FiberNode>>,
     pub(crate) child:   Option<RcX<FiberNode>>,
 }
+/// SAFETY: single thread
+const _: () = {
+    unsafe impl Send for FiberNode {}
+    unsafe impl Sync for FiberNode {}
+};
 
 #[derive(Clone)]
 pub(crate) enum Kind {
@@ -51,7 +55,7 @@ impl FiberNode {
                 let element = document().create_element(tag)?;
                 if let Some(attributes) = &self.props.attributes {
                     for (name, value) in &**attributes {
-                        element.set_attribute(name, &value)?;
+                        element.set_attribute(name, value)?;
                     }
                 }
                 if let Some(eventhandlers) = &self.props.eventhandlers {
@@ -67,7 +71,7 @@ impl FiberNode {
 }
 
 impl Fiber {
-    pub(crate) fn perform_unit_of_work(mut self, internals: &'static Internals) -> JSResult<Option<RcX<FiberNode>>> {
+    pub(crate) fn perform_unit_of_work(mut self, internals: Internals) -> JSResult<Option<RcX<FiberNode>>> {
         let Fiber { root:this } = &mut self;
 
         if this.dom.is_none() {

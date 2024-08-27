@@ -7,6 +7,15 @@ pub(crate) struct RcX<T>(Rc<UnsafeCell<T>>);
 
 pub(crate) struct WeakX<T>(Weak<UnsafeCell<T>>);
 
+/// SAFETY: single thread
+const _: () = {
+    unsafe impl<T: Send> Send for RcX<T> {}
+    unsafe impl<T: Sync> Sync for RcX<T> {}
+
+    unsafe impl<T: Send> Send for WeakX<T> {}
+    unsafe impl<T: Sync> Sync for WeakX<T> {}
+};
+
 impl<T> RcX<T> {
     pub(crate) fn new(data: T) -> Self {
         Self(Rc::new(UnsafeCell::new(data)))
