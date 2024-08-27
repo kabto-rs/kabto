@@ -75,7 +75,7 @@ impl FiberNode {
 }
 
 impl Fiber {
-    fn perform_unit_of_work(&mut self, internals: Internals) -> JSResult<()> {
+    fn perform_unit_of_work(&mut self, internals: Internals) -> JSResult<Option<RcX<FiberNode>>> {
         let Fiber { root:this } = self;
 
         if this.dom.is_none() {
@@ -87,23 +87,39 @@ impl Fiber {
                 .dom().append_child(this.dom())?;
         }
 
-        // let mut prev_sibling = None;
+        let mut prev_sibling = None;
         for i in 0..this.props.children.len() {
             let next = this.props.children[i].clone();
-            let mut next = FiberNode {
+            let next = RcX::new(FiberNode {
                 kind:    Kind::of(&next),
                 props:   next.props().cloned().unwrap_or_else(Props::new),
                 dom:     None,
                 parent:  Some(this.downgrade()),
                 sibling: None,
                 child:   None
-            };
+            });
 
-            next.parent = Some(this.downgrade());
+            prev_sibling = Some(next.clone());
 
-
+            if i == 0 {
+                this.child = Some(next)
+            } else {
+                prev_sibling.unwrap().sibling = Some(next)
+            }
         }
 
-        Ok(())
+        if this.child.is_some() {
+            return Ok(Some(this.child.as_ref().unwrap().clone()))
+        }
+
+        let mut maybe_next = Some(this.clone());
+        while let Some(next) = &maybe_next {
+            if next.sibling.is_some() {
+                return Ok(Some(next.sibling.as_ref().unwrap().clone()))
+            }
+            maybe_next = next.parent.as_ref().map(WeakX::upgrade).flatten()
+        }
+
+        Ok(None)
     }
 }

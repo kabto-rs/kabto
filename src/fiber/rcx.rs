@@ -1,4 +1,3 @@
-use crate::{JSResult, JsCast};
 use std::rc::{Rc, Weak};
 use std::cell::UnsafeCell;
 
@@ -16,8 +15,8 @@ impl<T> RcX<T> {
         WeakX(Rc::downgrade(&self.0))
     }
 
-    pub(crate) fn as_mut(&self) -> &mut T {
-        // SAFETY: single thread
+    // SAFETY: single thread
+    pub(crate) unsafe fn as_mut(&self) -> &mut T {
         unsafe {&mut *self.0.get()}
     }
 }
@@ -40,10 +39,7 @@ impl<T> Clone for RcX<T> {
 }
 
 impl<T> WeakX<T> {
-    pub(crate) fn upgrade(&self) -> JSResult<RcX<T>> {
-        match self.0.upgrade() {
-            Some(rc) => Ok(RcX(rc)),
-            None     => Err(::web_sys::Text::new_with_data("invalid WeakX")?.unchecked_into())
-        }
+    pub(crate) fn upgrade(&self) -> Option<RcX<T>> {
+        self.0.upgrade().map(RcX)
     }
 }
