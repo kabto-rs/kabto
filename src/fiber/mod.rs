@@ -2,7 +2,7 @@ pub(crate) use crate::util::{RcX, WeakX};
 
 use crate::internals::Internals;
 use crate::{document, JSResult, JsCast, UnwrapThrowExt};
-use crate::vdom::{Node, Props};
+use crate::vdom::{Node as VDOM, Props};
 use ::web_sys::Node as DOM;
 
 
@@ -11,8 +11,7 @@ pub(crate) struct Fiber(RcX<FiberNode>);
 
 #[derive(Clone)]
 pub(crate) struct FiberNode {
-    pub(crate) kind:    Kind,
-    pub(crate) props:   Props,
+    pub(crate) vdom:    VDOM,
     pub(crate) dom:     Option<DOM>,
     pub(crate) parent:  Option<WeakX<FiberNode>>,
     pub(crate) sibling: Option<RcX<FiberNode>>,
@@ -59,21 +58,6 @@ const _: () = {
     }
 };
 
-#[derive(Clone, Debug)]
-pub(crate) enum Kind {
-    TEXT_ELEMENT,
-    Element(&'static str)
-}
-
-impl Kind {
-    fn of(node: &Node) -> Self {
-        match node {
-            Node::Element(e) => Self::Element(e.tag),
-            Node::Text(_)    => Self::TEXT_ELEMENT
-        }
-    }
-}
-
 impl Fiber {
     pub(crate) fn forget(self) {
         #[cfg(debug_assertions)] {
@@ -87,13 +71,12 @@ impl Fiber {
         let Fiber(this) = &mut self;
 
         #[cfg(debug_assertions)] crate::console_log!(
-            "`Fiber::perform_unit_of_work` by `{:?}`",
-            this.kind
+            "`Fiber::perform_unit_of_work` by `{:?}`", this.vdom
         );
 
         if this.dom.is_none() {
             #[cfg(debug_assertions)] crate::console_log!(
-                "`create_dom` by `{:?}`", this.kind
+                "`create_dom` by `{:?}`", this.vdom
             );
 
             this.dom = Some(this.create_dom()?);
@@ -101,24 +84,26 @@ impl Fiber {
 
         if let Some(parent) = &this.parent {
             #[cfg(debug_assertions)] crate::console_log!(
-                "found parent of `{:?}`", this.kind
+                "found parent of `{:?}`", this.vdom
             );
 
             parent.upgrade()?.dom().append_child(this.dom())?;
 
             #[cfg(debug_assertions)] crate::console_log!(
                 "succeed `{:?}`'s `append_child` to parent `{:?}`",
-                this.kind,
-                parent.upgrade()?.kind
+                this.vdom,
+                parent.upgrade()?.vdom
             );
         }
 
         let mut prev_sibling: Option<RcX<FiberNode>> = None;
-        for i in 0..this.props.children.len() {
-            let next = this.props.children[i].clone();
+        let children = &this.vdom.props().cloned()
+            .unwrap_or_else(Props::new)
+            .children;
+        for i in 0..children.len() {
+            let next = children[i].clone();
             let next = RcX::new(FiberNode {
-                kind:    Kind::of(&next),
-                props:   next.props().cloned().unwrap_or_else(Props::new),
+                vdom:    next,
                 dom:     None,
                 parent:  Some(this.downgrade()),
                 sibling: None,
@@ -158,19 +143,19 @@ impl FiberNode {
     }
 
     fn create_dom(&self) -> JSResult<DOM> {
-        match self.kind {
-            Kind::TEXT_ELEMENT => {
-                let text = document().create_text_node("");
+        match &self.vdom {
+            VDOM::Text(text) => {
+                let text = document().create_text_node(&text);
                 Ok(text.unchecked_into())
             }
-            Kind::Element(tag) => {
-                let element = document().create_element(tag)?;
-                if let Some(attributes) = &self.props.attributes {
+            VDOM::Element(e) => {
+                let element = document().create_element(e.tag)?;
+                if let Some(attributes) = &e.props.attributes {
                     for (name, value) in &**attributes {
                         element.set_attribute(name, value)?;
                     }
                 }
-                if let Some(eventhandlers) = &self.props.eventhandlers {
+                if let Some(eventhandlers) = &e.props.eventhandlers {
                     for (event, handler) in &**eventhandlers {
                         let handler = handler.clone().into_wasm_closure();
                         element.add_event_listener_with_callback(event, handler.into_js_value().unchecked_ref())?;

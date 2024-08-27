@@ -54,17 +54,16 @@ pub fn render(
     nodes: impl Component,
     root:  impl Into<web_sys::Node>
 ) -> Result<(), JsValue> {
-    use fiber::{Fiber, FiberNode, Kind};
-    use vdom::Props;
+    use fiber::{Fiber, FiberNode};
+    use vdom::{Node, Element, Props};
 
     let root = Fiber::from(FiberNode {
-        kind:    Kind::Element("#"),
-        dom:     Some(root.into()),
-        props:   Props {
+        vdom: Node::Element(Element::with(Props {
             attributes:    None,
             eventhandlers: None,
             children:      nodes.into_nodes().into()
-        },
+        })),
+        dom: Some(root.into()),
         parent:  None,
         sibling: None,
         child:   None,

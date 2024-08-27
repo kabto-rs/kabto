@@ -40,3 +40,12 @@ macro_rules! integer_value {
         }
     )*};
 } integer_value! { u8 usize i32 }
+
+#[cfg(debug_assertions)]
+const _: () = {
+    impl std::fmt::Debug for Text {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{:?}", &*self.0)
+        }
+    }
+};
