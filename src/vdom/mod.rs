@@ -190,33 +190,33 @@ impl Node {
         }
     }
 
-    pub fn render_to(self, container: &web_sys::Node) -> Result<(), JsValue> {
-        match self {
-            Node::Text(text) => {
-                let node = crate::document().create_text_node(&text);
-                container.append_child(&node)?;
-            }
-            Node::Element(Element { t:_, tag, props }) => {
-                let node = crate::document().create_element(tag)?; {
-                    if let Some(attributes) = props.attributes {                        
-                        for (name, value) in *attributes {
-                            node.set_attribute(name, &value)?;
-                        }
-                    }
-                    if let Some(eventhandlers) = props.eventhandlers {                        
-                        for (event, handler) in *eventhandlers {
-                            let handler = handler.into_wasm_closure();
-                            node.add_event_listener_with_callback(event, handler.into_js_value().unchecked_ref())?;
-                        }
-                    }
-                    for child in props.children {
-                        child.render_to(&node)?;
-                    }
-                }
-                container.append_child(&node)?;
-            }
-        }
-
-        Ok(())
-    }
+//    pub fn render_to(self, container: &web_sys::Node) -> Result<(), JsValue> {
+//        match self {
+//            Node::Text(text) => {
+//                let node = crate::document().create_text_node(&text);
+//                container.append_child(&node)?;
+//            }
+//            Node::Element(Element { t:_, tag, props }) => {
+//                let node = crate::document().create_element(tag)?; {
+//                    if let Some(attributes) = props.attributes {                        
+//                        for (name, value) in *attributes {
+//                            node.set_attribute(name, &value)?;
+//                        }
+//                    }
+//                    if let Some(eventhandlers) = props.eventhandlers {                        
+//                        for (event, handler) in *eventhandlers {
+//                            let handler = handler.into_wasm_closure();
+//                            node.add_event_listener_with_callback(event, handler.into_js_value().unchecked_ref())?;
+//                        }
+//                    }
+//                    for child in props.children {
+//                        child.render_to(&node)?;
+//                    }
+//                }
+//                container.append_child(&node)?;
+//            }
+//        }
+//
+//        Ok(())
+//    }
 }

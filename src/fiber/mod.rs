@@ -65,7 +65,7 @@ impl Fiber {
                 .dom().append_child(this.dom())?;
         }
 
-        let mut prev_sibling = None;
+        let mut prev_sibling: Option<RcX<FiberNode>> = None;
         for i in 0..this.props.children.len() {
             let next = this.props.children[i].clone();
             let next = RcX::new(FiberNode {
@@ -77,13 +77,15 @@ impl Fiber {
                 child:   None
             });
 
-            prev_sibling = Some(next.clone());
-
-            if i == 0 {
-                this.child = Some(next)
-            } else {
-                prev_sibling.unwrap().sibling = Some(next)
+            {let next = next.clone();
+                if i == 0 {
+                    this.child = Some(next)
+                } else {
+                    prev_sibling.unwrap().sibling = Some(next)
+                }
             }
+
+            prev_sibling = Some(next);
         }
 
         if this.child.is_some() {
