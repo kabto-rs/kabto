@@ -59,6 +59,16 @@ const _: () = {
 };
 
 impl Fiber {
+    pub(crate) fn child(&self) -> Option<Fiber> {
+        self.child.clone().map(Fiber)
+    }
+    pub(crate) fn sibling(&self) -> Option<Fiber> {
+        self.sibling.clone().map(Fiber)
+    }
+    pub(crate) fn parent(&self) -> Option<Fiber> {
+        self.parent.clone()?.upgrade().ok().map(Fiber)
+    }
+
     pub(crate) fn forget(self) {
         #[cfg(feature="DEBUG")] {
             crate::console_log!("`Fiber::forget` called")
@@ -80,20 +90,6 @@ impl Fiber {
             );
 
             this.dom = Some(this.create_dom()?);
-        }
-
-        if let Some(parent) = &this.parent {
-            #[cfg(feature="DEBUG")] crate::console_log!(
-                "found parent of `{:?}`", this.vdom
-            );
-
-            parent.upgrade()?.dom().append_child(this.dom())?;
-
-            #[cfg(feature="DEBUG")] crate::console_log!(
-                "succeed `{:?}`'s `append_child` to parent `{:?}`",
-                this.vdom,
-                parent.upgrade()?.vdom
-            );
         }
 
         let mut prev_sibling: Option<RcX<FiberNode>> = None;
@@ -138,7 +134,7 @@ impl Fiber {
 }
 
 impl FiberNode {
-    fn dom(&self) -> &DOM {
+    pub(crate) fn dom(&self) -> &DOM {
         self.dom.as_ref().expect_throw("invalid `dom`")
     }
 

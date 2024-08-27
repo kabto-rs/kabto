@@ -30,9 +30,7 @@ fn work_loop(
     mut internals:        Internals,
 ) -> JSResult<()> {
     #[cfg(feature="DEBUG")] {
-        crate::console_log!(
-            "`work_loop` called"
-        )
+        crate::console_log!("`work_loop` called");
     }
 
     let mut should_yield = false;
@@ -42,6 +40,10 @@ fn work_loop(
             internals.clone()
         )?;
         should_yield = deadline.time_remaining() < 1.
+    }
+
+    if internals.next_unit_of_work.is_none() && internals.wip_root.is_some() {
+        commit_root(internals.clone())
     }
 
     window().request_idle_callback(Closure::<dyn Fn(web_sys::IdleDeadline)->JSResult<()>>::new(

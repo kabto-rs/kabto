@@ -71,6 +71,7 @@ pub fn render(
 
     let mut internals = Internals::get();
     internals.next_unit_of_work = Some(root.clone());
+    internals.wip_root          = Some(root.clone());
     internals.flush_sync()?;
 
     root.forget();

@@ -28,7 +28,7 @@ const _: () = {
                 LazyLock::new(|| RcX::new(internal::Internals {
                     next_unit_of_work: None,
                     current_root:      None,
-                    wip_rot:           None,
+                    wip_root:          None,
                     deletions:         None,
                     wip_fiber:         None,
                     hook_index:        None,
@@ -39,8 +39,23 @@ const _: () = {
 };
 
 impl Internals {
-    fn commit_root(self) {
-        // do nothing
+    fn commit_root(mut self) {
+        fn commit_work(fiber: Option<Fiber>) {            
+            if let Some(fiber) = fiber {
+                use web_sys::wasm_bindgen::UnwrapThrowExt;
+
+                fiber.parent().unwrap().dom().append_child(fiber.dom())
+                    .expect_throw("failed to appendChild");
+                commit_work(fiber.child());
+                commit_work(fiber.sibling());
+            }
+        }
+
+        if self.wip_root.is_none() {
+            return
+        }
+        commit_work(self.wip_root.as_ref().unwrap().child());
+        self.wip_root = None
     }
 
     pub(crate) fn flush_sync(self) -> JSResult<()> {
@@ -59,7 +74,7 @@ mod internal {
     pub(crate) struct Internals {
         pub(crate) next_unit_of_work: Option<Fiber>,
         pub(crate) current_root:      Option<(/* todo */)>,
-        pub(crate) wip_rot:           Option<(/* todo */)>,
+        pub(crate) wip_root:          Option<Fiber>,
         pub(crate) deletions:         Option<(/* todo */)>,
         pub(crate) wip_fiber:         Option<(/* todo */)>,
         pub(crate) hook_index:        Option<(/* todo */)>,
