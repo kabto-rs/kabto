@@ -197,7 +197,7 @@ impl Node {
     }
 }
 
-#[cfg(debug_assertions)]
+#[cfg(feature="DEBUG")]
 const _: () = {
     impl std::fmt::Debug for Node {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

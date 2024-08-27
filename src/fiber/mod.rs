@@ -35,10 +35,10 @@ const _: () = {
         }
     }
 
-    #[cfg(debug_assertions)]
+    #[cfg(feature="DEBUG")]
     impl Drop for Fiber {
         fn drop(&mut self) {       
-            #[cfg(debug_assertions)] {
+            #[cfg(feature="DEBUG")] {
                 crate::console_log!(
                     "`Fiber` droped: remaining {}",
                     self.0.strong_count() - 1
@@ -46,10 +46,10 @@ const _: () = {
             }
         }
     }
-    #[cfg(debug_assertions)]
+    #[cfg(feature="DEBUG")]
     impl Drop for FiberNode {
         fn drop(&mut self) {       
-            #[cfg(debug_assertions)] {
+            #[cfg(feature="DEBUG")] {
                 crate::console_log!(
                     "`FiberNode` droped"
                 )
@@ -60,7 +60,7 @@ const _: () = {
 
 impl Fiber {
     pub(crate) fn forget(self) {
-        #[cfg(debug_assertions)] {
+        #[cfg(feature="DEBUG")] {
             crate::console_log!("`Fiber::forget` called")
         }
 
@@ -70,12 +70,12 @@ impl Fiber {
     pub(crate) fn perform_unit_of_work(mut self, internals: Internals) -> JSResult<Option<Fiber>> {
         let Fiber(this) = &mut self;
 
-        #[cfg(debug_assertions)] crate::console_log!(
+        #[cfg(feature="DEBUG")] crate::console_log!(
             "`Fiber::perform_unit_of_work` by `{:?}`", this.vdom
         );
 
         if this.dom.is_none() {
-            #[cfg(debug_assertions)] crate::console_log!(
+            #[cfg(feature="DEBUG")] crate::console_log!(
                 "`create_dom` by `{:?}`", this.vdom
             );
 
@@ -83,13 +83,13 @@ impl Fiber {
         }
 
         if let Some(parent) = &this.parent {
-            #[cfg(debug_assertions)] crate::console_log!(
+            #[cfg(feature="DEBUG")] crate::console_log!(
                 "found parent of `{:?}`", this.vdom
             );
 
             parent.upgrade()?.dom().append_child(this.dom())?;
 
-            #[cfg(debug_assertions)] crate::console_log!(
+            #[cfg(feature="DEBUG")] crate::console_log!(
                 "succeed `{:?}`'s `append_child` to parent `{:?}`",
                 this.vdom,
                 parent.upgrade()?.vdom

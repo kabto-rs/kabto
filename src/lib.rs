@@ -53,7 +53,7 @@ impl<IN: dsl::nodes::IntoNodes> Component for IN {}
 pub fn render(
     nodes: impl Component,
     root:  impl Into<web_sys::Node>
-) -> Result<(), JsValue> {
+) -> JSResult<()> {
     use fiber::{Fiber, FiberNode};
     use vdom::{Node, Element, Props};
 
@@ -75,7 +75,7 @@ pub fn render(
 
     root.forget();
     Ok({
-        #[cfg(debug_assertions)] {
+        #[cfg(feature="DEBUG")] {
             console_log!("`render` finished")
         }
     })

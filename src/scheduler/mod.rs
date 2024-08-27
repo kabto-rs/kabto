@@ -8,10 +8,10 @@ pub(crate) fn schedule_callback(
     perform_unit_of_work: fn(Fiber, Internals)->JSResult<Option<Fiber>>,
     internals:            Internals,
 ) -> JSResult<()> {
-    #[cfg(debug_assertions)] {
-        web_sys::console::log_1(web_sys::Text::new_with_data(
+    #[cfg(feature="DEBUG")] {
+        crate::console_log!(
             "`schedule_callback` called"
-        )?.as_ref())
+        )
     }
 
     window().request_idle_callback(Closure::<dyn Fn(web_sys::IdleDeadline)->JSResult<()>>::new(
@@ -29,10 +29,10 @@ fn work_loop(
     perform_unit_of_work: fn(Fiber, Internals)->JSResult<Option<Fiber>>,
     mut internals:        Internals,
 ) -> JSResult<()> {
-    #[cfg(debug_assertions)] {
-        web_sys::console::log_1(web_sys::Text::new_with_data(
+    #[cfg(feature="DEBUG")] {
+        crate::console_log!(
             "`work_loop` called"
-        )?.as_ref())
+        )
     }
 
     let mut should_yield = false;
