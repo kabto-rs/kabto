@@ -1,5 +1,6 @@
 use web_sys::wasm_bindgen::closure::Closure;
-use crate::{fiber::Fiber, vdom::Node, window, JsCast, JsValue};
+use crate::{vdom::Node, window, JsCast, JsValue};
+use crate::fiber::{Fiber, Internals};
 
 
 pub(crate) fn schedule_callback(
@@ -37,20 +38,4 @@ fn work_loop(
         }
     ).into_js_value().unchecked_ref())?;
     Ok(())
-}
-
-fn perform_unit_of_work(fiber: Fiber, internals: Internals) {
-    if fiber.dom.is_none() {
-        
-    }
-}
-
-#[derive(Clone)]
-pub(crate) struct Internals {
-    next_unit_of_work: Option<(/* todo */)>,
-    current_root:      Option<(/* todo */)>,
-    wip_rot:           Option<(/* todo */)>,
-    deletions:         Option<(/* todo */)>,
-    wip_fiber:         Option<(/* todo */)>,
-    hook_index:        Option<(/* todo */)>,
 }

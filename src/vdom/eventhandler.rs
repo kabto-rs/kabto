@@ -1,15 +1,16 @@
-use std::future::Future;
+use std::{future::Future, rc::Rc};
 use web_sys::wasm_bindgen::{closure::Closure, JsCast, JsValue};
 use wasm_bindgen_futures::spawn_local;
 
 
+#[derive(Clone)]
 pub struct eventHandler {
-    handler: Box<dyn Fn(JsValue)>
+    handler: Rc<dyn Fn(JsValue)>
 }
 
 impl eventHandler {
     pub(crate) fn into_wasm_closure(self) -> Closure<dyn Fn(JsValue)> {
-        Closure::wrap(self.handler)
+        Closure::new(move |js_value| (&*self.handler)(js_value))
     }
 }
 
@@ -25,7 +26,7 @@ const _: (/* with event */) = {
     {
         fn into_eventhandler(self) -> eventHandler {
             eventHandler {
-                handler: Box::new(move |js_value| self(E::unchecked_from_js(js_value)))
+                handler: Rc::new(move |js_value| self(E::unchecked_from_js(js_value)))
             }
         }
     }
@@ -37,7 +38,7 @@ const _: (/* with event */) = {
     {
         fn into_eventhandler(self) -> eventHandler {
             eventHandler {
-                handler: Box::new(move |js_value| {
+                handler: Rc::new(move |js_value| {
                     if let Err(err) = self(E::unchecked_from_js(js_value)) {
                         web_sys::console::log_1(&err)
                     }
@@ -54,7 +55,7 @@ const _: (/* with event */) = {
     {
         fn into_eventhandler(self) -> eventHandler {
             eventHandler {
-                handler: Box::new(move |js_value| spawn_local(
+                handler: Rc::new(move |js_value| spawn_local(
                     self(E::unchecked_from_js(js_value))
                 ))
             }
@@ -69,7 +70,7 @@ const _: (/* with event */) = {
     {
         fn into_eventhandler(self) -> eventHandler {
             eventHandler {
-                handler: Box::new(move |js_value| {
+                handler: Rc::new(move |js_value| {
                     let res = self(E::unchecked_from_js(js_value));
                     spawn_local(async {
                         if let Err(err) = res.await {

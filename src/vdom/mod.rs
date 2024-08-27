@@ -1,6 +1,6 @@
 pub(crate) mod eventhandler;
 
-use self::eventhandler::eventHandler;
+pub(crate) use self::eventhandler::eventHandler;
 use std::{borrow::Cow, collections::HashMap, marker::PhantomData};
 use web_sys::wasm_bindgen::{JsValue, JsCast};
 
@@ -209,7 +209,7 @@ impl<T: Tag> Element<T> {
 
 impl Node {
     pub fn render_to(self, container: &web_sys::Node) -> Result<(), JsValue> {
-        let document = web_sys::window().unwrap().document().unwrap();
+        let document = crate::document();
 
         match self {
             Node::Text(text) => {
@@ -226,8 +226,7 @@ impl Node {
                     if let Some(eventhandlers) = eventhandlers {                        
                         for (event, handler) in *eventhandlers {
                             let handler = handler.into_wasm_closure();
-                            node.add_event_listener_with_callback(event, handler.as_ref().unchecked_ref())?;
-                            handler.forget();
+                            node.add_event_listener_with_callback(event, handler.into_js_value().unchecked_ref())?;
                         }
                     }
                     for child in children {
