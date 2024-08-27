@@ -53,8 +53,7 @@ impl Internals {
 }
 
 mod internal {
-    use crate::{fiber::FiberNode, util::RcX};
-    use std::sync::LazyLock;
+    use crate::fiber::FiberNode;
 
     #[derive(Clone)]
     pub(crate) struct Internals {
