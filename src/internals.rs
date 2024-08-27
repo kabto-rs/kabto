@@ -1,4 +1,4 @@
-use crate::{scheduler::schedule_callback, JSResult};
+use crate::{scheduler, JSResult};
 
 
 #[derive(Clone)]
@@ -23,16 +23,21 @@ impl Internals {
             hook_index:        None,
         };
 
+        #[allow(static_mut_refs)]
         &mut INTERNALS
     }
 }
 
 impl Internals {
-    fn commit_root(&self) {
-
+    fn commit_root(&'static self) {
+        todo!()
     }
 
-    pub(crate) fn flush_sync(&self) -> JSResult<()> {
-        Ok(())
+    pub(crate) fn flush_sync(&'static self) -> JSResult<()> {
+        scheduler::schedule_callback(
+            commit_root,
+            perform_unit_of_work,
+            self
+        )
     }
 }
