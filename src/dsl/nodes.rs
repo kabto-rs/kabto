@@ -23,6 +23,15 @@ impl Nodes {
         }
     }
 }
+impl Into<Vec<Node>> for Nodes {
+    fn into(self) -> Vec<Node> {
+        match self {
+            Self::None    => vec![],
+            Self::Some(n) => vec![n],
+            Self::Many(v) => v
+        }
+    }
+}
 
 impl<T: Tag> IntoNodes for Element<T> {
     fn into_nodes(self) -> Nodes {

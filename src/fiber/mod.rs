@@ -1,8 +1,7 @@
 mod rcx;
-use rcx::{RcX, WeakX};
+pub(crate) use rcx::{RcX, WeakX};
 
-pub(crate) use crate::internals::Internals;
-
+use crate::internals::Internals;
 use crate::{document, JSResult, JsCast, UnwrapThrowExt};
 use crate::vdom::{Node, Props};
 use ::web_sys::Node as DOM;
@@ -12,6 +11,7 @@ pub(crate) struct Fiber {
     root: RcX<FiberNode>
 }
 
+#[derive(Clone)]
 pub(crate) struct FiberNode {
     pub(crate) kind:    Kind,
     pub(crate) props:   Props,
@@ -67,8 +67,8 @@ impl FiberNode {
 }
 
 impl Fiber {
-    fn perform_unit_of_work(&mut self, internals: Internals) -> JSResult<Option<RcX<FiberNode>>> {
-        let Fiber { root:this } = self;
+    pub(crate) fn perform_unit_of_work(mut self, internals: &'static Internals) -> JSResult<Option<RcX<FiberNode>>> {
+        let Fiber { root:this } = &mut self;
 
         if this.dom.is_none() {
             this.dom = Some(this.create_dom()?);

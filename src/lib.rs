@@ -43,10 +43,24 @@ pub fn render(
     nodes: impl Component,
     root:  &web_sys::Node
 ) -> Result<(), JsValue> {
+    use fiber::{FiberNode, Kind};
+    use vdom::Props;
+
     // SAFETY: single thread
     let internals = unsafe {Internals::get()};
 
-    internals.next_unit_of_work = Some(());
+    internals.next_unit_of_work = Some(FiberNode {
+        kind:    Kind::Element(""),
+        dom:     Some(root.clone()),
+        props:   Props {
+            attributes:    None,
+            eventhandlers: None,
+            children:      nodes.into_nodes().into()
+        },
+        parent:  None,
+        sibling: None,
+        child:   None,
+    });
     
     internals.flush_sync()
 }

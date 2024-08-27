@@ -1,9 +1,10 @@
 use crate::{scheduler, JSResult};
+use crate::fiber::{Fiber, FiberNode};
 
 
 #[derive(Clone)]
 pub(crate) struct Internals {
-    pub(super) next_unit_of_work: Option<(/* todo */)>,
+    pub(super) next_unit_of_work: Option<FiberNode>,
     pub(super) current_root:      Option<(/* todo */)>,
     pub(super) wip_rot:           Option<(/* todo */)>,
     pub(super) deletions:         Option<(/* todo */)>,
@@ -30,13 +31,13 @@ impl Internals {
 
 impl Internals {
     fn commit_root(&'static self) {
-        todo!()
+        // do nothing
     }
 
     pub(crate) fn flush_sync(&'static self) -> JSResult<()> {
         scheduler::schedule_callback(
-            commit_root,
-            perform_unit_of_work,
+            Self::commit_root,
+            Fiber::perform_unit_of_work,
             self
         )
     }

@@ -47,3 +47,8 @@ impl<T> WeakX<T> {
         }
     }
 }
+impl<T> Clone for WeakX<T> {
+    fn clone(&self) -> Self {
+        Self(Weak::clone(&self.0))
+    }
+}
