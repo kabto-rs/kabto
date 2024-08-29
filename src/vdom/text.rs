@@ -1,9 +1,9 @@
-use std::{borrow::Cow, rc::Rc};
+use std::borrow::Cow;
 
 
 #[derive(Clone)]
 pub struct VText(
-    Rc<Cow<'static, str>>
+    Cow<'static, str>
 );
 
 impl std::ops::Deref for VText {
@@ -15,24 +15,24 @@ impl std::ops::Deref for VText {
 
 impl From<String> for VText {
     fn from(value: String) -> Self {
-        Self(Rc::new(value.into()))
+        Self(value.into())
     }
 }
 impl From<&'static str> for VText {
     fn from(value: &'static str) -> Self {
-        Self(Rc::new(value.into()))
+        Self(value.into())
     }
 }
 impl From<bool> for VText {
     fn from(value: bool) -> Self {
-        Self(Rc::new((if value {"true"} else {"false"}).into()))
+        Self((if value {"true"} else {"false"}).into())
     }
 }
 macro_rules! from_integer {
     ($($t:ty)*) => {$(
         impl From<$t> for VText {
             fn from(value: $t) -> Self {
-                Self(Rc::new(value.to_string().into()))
+                Self(value.to_string().into())
             }
         }
     )*};

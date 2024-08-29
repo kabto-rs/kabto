@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub(crate) struct DOM(
     web_sys::Element
 );

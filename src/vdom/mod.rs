@@ -12,18 +12,28 @@ use web_sys::js_sys::Function;
 #[derive(Clone)]
 pub(crate) struct VDOM(VNode);
 
+impl std::ops::Deref for VDOM {
+    type Target = VNode;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 #[derive(Clone)]
-pub struct VNode(RcX<VElement<()>>);
+pub enum VNode {
+    Text(RcX<VText>),
+    Element(RcX<VElement<()>>),
+}
 
 pub struct VElement<T: Tag> {t: PhantomData<fn()->T>,
-    kind:     Kind,
+    tag:      &'static str,
     props:    Option<Props>,
-    value:    Option<VText>,
     children: Option<Vec<VNode>>,
 }
 
+#[derive(PartialEq, Debug)]
 pub(crate) enum Kind {
-    Tag(&'static str),
+    Element(&'static str),
     Text
 }
 
@@ -175,37 +185,21 @@ impl Props {
     }
 }
 
-impl VElement<()> {
-    pub(crate) fn new_text(text: impl Into<VText>) -> Self {
-        VElement {t: PhantomData,
-            kind:     Kind::Text,
-            props:    None,
-            value:    Some(text.into()),
-            children: None
-        }
-    }
-}
-
 impl<T: Tag> VElement<T> {
     pub(crate) const fn new_tag() -> Self {
         VElement {t: PhantomData,
-            kind:     Kind::Tag(T::NAME),
+            tag:      T::NAME,
             props:    None,
-            value:    None,
             children: None
         }
     }
 
     pub(crate) fn into_node(self) -> VNode {
-        VNode(RcX::new(unsafe {std::mem::transmute(self)}))
+        VNode::Element(RcX::new(unsafe {std::mem::transmute(self)}))
     }
 
-    pub(crate) fn kind(&self) -> &Kind {
-        &self.kind
-    }
-
-    pub(crate) fn as_text(&self) -> Option<&str> {
-        self.value.as_deref()
+    pub(crate) fn tag(&self) -> &'static str {
+        self.tag
     }
 
     pub(crate) fn children(&self) -> Option<&Vec<VNode>> {
@@ -236,5 +230,14 @@ impl<T: Tag> VElement<T> {
             self.props = Some(Props::new())
         }
         unsafe {&mut self.props.as_mut().unwrap_unchecked().eventhandlers}
+    }
+}
+
+impl VNode {
+    pub(crate) fn kind(&self) -> Kind {
+        match self {
+            Self::Element(e) => Kind::Element(e.tag),
+            Self::Text(_)    => Kind::Text
+        }
     }
 }

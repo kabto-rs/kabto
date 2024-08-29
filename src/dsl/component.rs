@@ -1,4 +1,5 @@
 use crate::vdom::{VElement, VNode, Tag};
+use crate::util::RcX;
 
 
 pub trait Component {
@@ -72,7 +73,7 @@ macro_rules! TextNode {
     ($($text:ty),+) => {$(
         impl Component for $text {
             fn into_nodes(self) -> Nodes {
-                Nodes::Some(VElement::new_text(self).into_node())
+                Nodes::Some(VNode::Text(RcX::new(self.into())))
             }
         }
     )*};

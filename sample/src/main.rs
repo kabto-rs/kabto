@@ -94,5 +94,7 @@ fn main() -> JSResult<()> {
     console_log!("text as Element = {text:?}");
     console_log!("text's child_element_count = {}", text.child_element_count());
 
+    text.remove();
+
     Ok(())
 }
