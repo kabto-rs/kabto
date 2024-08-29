@@ -19,12 +19,35 @@ pub(crate) struct FiberNode {
     pub(crate) effect:    Option<Effect>
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) enum Effect {
     Update,
     Create,
     Delete
 }
+
+#[cfg(debug_assertions)]
+const _: () = {
+    impl std::fmt::Debug for Fiber {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            std::fmt::Debug::fmt(&self.0, f)
+        }
+    }
+
+    impl std::fmt::Debug for FiberNode {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.debug_struct("FiberNode")
+                .field("vdom", &self.vdom)
+                .field("dom", &self.dom)
+                //.field("parent", &self.parent.as_ref().map(|p| p.upgrade()))
+                .field("sibling", &self.sibling)
+                .field("child", &self.child)
+                .field("alternate", &self.alternate)
+                .field("affect", &self.effect)
+                .finish()
+        }
+    }
+};
 
 const _: () = {
     /// SAFETY: single thread
@@ -130,12 +153,17 @@ impl Fiber {
     }
 
     fn reconcile_children(wip_fiber: &mut RcX<FiberNode>, children: &Vec<VDOM>, mut internals: Internals) {
+        #[cfg(feature="DEBUG")] {
+            crate::console_log!("`reconcile_children` called");
+            crate::console_log!("wip_fiber = {wip_fiber:#?}");
+        }
+
         let mut index = 0;
         let mut prev_sibling: Option<RcX<FiberNode>> = None;
         let mut old_fiber = wip_fiber.alternate.as_ref().map(|f| f.child()).flatten();
 
         while index < children.len() || old_fiber.is_some() {
-            let next = children.get(index).map(Clone::clone);
+            let next = children.get(index).cloned();
 
             let mut new_fiber = None;
             /*
@@ -151,13 +179,27 @@ impl Fiber {
                 | (true, _ , None)
                 => unreachable!("at least one of `next`, `old_fiber` is Some"),
 
-                (true, Some(next), Some(old)) => {/* update props */
-                    let mut new_vdom = old.vdom.clone();
-                    if let Some(props) = new_vdom.props_mut() {
-                        if let Some(next_props) = next.props() {
-                            *props = next_props.clone()
-                        }
+                (true, Some(next), Some(old)) => {
+                    #[cfg(feature="DEBUG")] {
+                        crate::console_log!("reconcile::update");
+                        crate::console_log!("update: old  = {old:#?}");
+                        crate::console_log!("update: next = {next:#?}");
                     }
+
+                    let new_vdom = {
+                        let mut new_vdom = old.vdom.clone();
+                        if let Some(text) = new_vdom.text_mut() {
+                            if let Some(new_text) = next.text() {
+                                *text = new_text.clone()
+                            }
+                        }
+                        if let Some(props) = new_vdom.props_mut() {
+                            if let Some(next_props) = next.props() {
+                                *props = next_props.clone()
+                            }
+                        }
+                        new_vdom
+                    };
                     new_fiber = Some(RcX::new(FiberNode {
                         vdom:      new_vdom,
                         dom:       old.dom.clone(),
@@ -169,12 +211,22 @@ impl Fiber {
                     }))
                 }
 
-                (false, None, Some(old)) => {/* delete old one */
+                (false, None, Some(old)) => {
+                    #[cfg(feature="DEBUG")] {
+                        crate::console_log!("reconcile::delete");
+                        crate::console_log!("delete: old  = {old:#?}");
+                    }
+
                     old.effect = Some(Effect::Delete);
                     internals.deletions.push(old.clone());
                 }
 
-                (false, Some(next), _) => {/* create or replace new one */
+                (false, Some(next), _) => {
+                    #[cfg(feature="DEBUG")] {
+                        crate::console_log!("reconcile::create");
+                        crate::console_log!("create: next = {next:#?}");
+                    }
+
                     new_fiber = Some(RcX::new(FiberNode {
                         vdom:      next.clone(),
                         dom:       None,

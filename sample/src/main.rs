@@ -27,7 +27,7 @@ fn app(Props { value }: Props) -> impl kabto::Component {
                     )
             ),
             tag::div(
-                tag::h2(format!("This is {value}!")),
+                tag::h2(format!("This is {value}")),
                 tag::input
                     .value(value.clone())
                     .on_input(update_value),

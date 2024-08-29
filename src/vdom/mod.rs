@@ -215,6 +215,19 @@ impl Node {
             Self::Text(_)    => None
         }
     }
+
+    pub(crate) fn text(&self) -> Option<&Text> {
+        match self {
+            Self::Text(text) => Some(text),
+            Self::Element(_) => None
+        }
+    }
+    pub(crate) fn text_mut(&mut self) -> Option<&mut Text> {
+        match self {
+            Self::Text(text) => Some(text),
+            Self::Element(_) => None
+        }
+    }
 }
 
 #[cfg(feature="DEBUG")]

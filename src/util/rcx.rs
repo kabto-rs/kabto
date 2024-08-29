@@ -60,3 +60,14 @@ impl<T> Clone for WeakX<T> {
         Self(Weak::clone(&self.0))
     }
 }
+
+#[cfg(debug_assertions)]
+const _: () = {
+    use std::fmt::Debug;
+
+    impl<T: Debug> Debug for RcX<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            Debug::fmt(&**self, f)
+        }
+    }
+};
