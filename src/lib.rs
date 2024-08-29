@@ -49,8 +49,8 @@ macro_rules! console_log {
 }
 
 pub fn render(
-    nodes: impl Component,
-    root:  impl Into<web_sys::Element>
+    component: impl Component,
+    root:      impl Into<web_sys::Element>
 ) -> JSResult<()> {
     use fiber::{Fiber, FiberNode};
     use vdom::{Node, Element, Props};
@@ -61,7 +61,7 @@ pub fn render(
         vdom: Node::Element(Element::with(Props {
             attributes:    None,
             eventhandlers: None,
-            children:      nodes.into_nodes().into()
+            children:      component.into_nodes().into()
         })),
         dom: Some(root.into().into()),
         parent:    None,
