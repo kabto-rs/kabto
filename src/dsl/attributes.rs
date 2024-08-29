@@ -1,4 +1,4 @@
-use crate::vdom::{Element, Tag, tag};
+use crate::vdom::{VElement, Tag, tag};
 use crate::util::Text;
 
 
@@ -11,10 +11,10 @@ macro_rules! keyvalue {
             $( $name2:ident $(for $attr_name2:literal)? ),* $(,)?
         })*
     ) => {
-        impl<T: Tag> Element<T> {$(
+        impl<T: Tag> VElement<T> {$(
             keyvalue! {@ $name $(for $attr_name)?}
         )*}
-        $(impl Element<tag::$tag> {$(
+        $(impl VElement<tag::$tag> {$(
             keyvalue! {@ $name2 $(for $attr_name2)?}
         )*})*
     };
@@ -309,10 +309,10 @@ macro_rules! boolean {
             $( $name2:ident $(for $attr_name2:literal)? ),* $(,)?
         })*
     ) => {
-        impl<T: Tag> Element<T> {$(
+        impl<T: Tag> VElement<T> {$(
             boolean! {@ $name $(for $attr_name)?}
         )*}
-        $(impl Element<tag::$tag> {$(
+        $(impl VElement<tag::$tag> {$(
             boolean! {@ $name2 $(for $attr_name2)?}
         )*})*
     };
@@ -441,7 +441,7 @@ macro_rules! enumerated {
             $( $name2:literal $(for $attr_name2:literal)? [$( $method2:ident ($value2:literal) )*] )*
         })*
     ) => {
-        impl<T: Tag> Element<T> {$(
+        impl<T: Tag> VElement<T> {$(
             $(pub fn $method(mut self) -> Self {
                 if self.props.attributes.is_none() {
                     self.props.attributes = Some(Default::default())
@@ -451,7 +451,7 @@ macro_rules! enumerated {
                 self
             })*
         )*}
-        $(impl Element<tag::$tag> {$(
+        $(impl VElement<tag::$tag> {$(
             $(pub fn $method2(mut self) -> Self {
                 if self.props.attributes.is_none() {
                     self.props.attributes = Some(Default::default())

@@ -7,10 +7,10 @@ pub mod component;
 macro_rules! tag {
     ($($name:ident),* $(,)?) => {
         pub mod tag {
-            use crate::vdom::{Element, tag};
+            use crate::vdom::{VElement, tag};
             $(
                 #[allow(non_upper_case_globals)]
-                pub const $name: Element<tag::$name> = Element::new();
+                pub const $name: VElement<tag::$name> = VElement::new_tag();
             )*
         }
     };

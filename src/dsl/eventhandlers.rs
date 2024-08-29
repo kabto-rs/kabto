@@ -1,4 +1,4 @@
-use crate::vdom::{Element, Tag, tag};
+use crate::vdom::{VElement, Tag, tag};
 use crate::vdom::EventHandler;
 
 
@@ -11,26 +11,26 @@ macro_rules! register_eventhandlers {
             $handler2:ident: $event_name2:ident $event_object2:ident;
         )*})*
     ) => {
-        impl<T: Tag> Element<T> {$(
+        impl<T: Tag> VElement<T> {$(
             pub fn $handler<__>(mut self, f: impl EventHandler<web_sys::$event_object, __>) -> Self {
                 if self.props.eventhandlers.is_none() {
                     self.props.eventhandlers = Some(Default::default())
                 }
 
                 unsafe {self.props.eventhandlers.as_mut().unwrap_unchecked()}
-                    .insert(stringify!($event_name), f.into_eventhandler().into());
+                    .insert(stringify!($event_name), f.into_function());
 
                 self
             }
         )*}
-        $(impl Element<tag::$tag> {$(
+        $(impl VElement<tag::$tag> {$(
             pub fn $handler2<__>(mut self, f: impl EventHandler<web_sys::$event_object2, __>) -> Self {
                 if self.props.eventhandlers.is_none() {
                     self.props.eventhandlers = Some(Default::default())
                 }
 
                 unsafe {self.props.eventhandlers.as_mut().unwrap_unchecked()}
-                    .insert(stringify!($event_name2), f.into_eventhandler().into());
+                    .insert(stringify!($event_name2), f.into_function());
 
                 self
             }

@@ -12,16 +12,13 @@
     sync_unsafe_cell,
 )]
 
+mod context;
 mod dsl;
-mod fiber;
-mod scheduler;
 mod vdom;
 mod dom;
-mod internals;
 mod util;
 
 pub use dsl::{tag, component::Component};
-pub(crate) use internals::Internals;
 
 pub use ::web_sys::{console, Text, Element};
 pub use ::web_sys::wasm_bindgen::{JsValue, JsCast, UnwrapThrowExt};
@@ -48,37 +45,37 @@ macro_rules! console_log {
     };
 }
 
-pub fn render(
-    component: impl Component,
-    root:      impl Into<web_sys::Element>
-) -> JSResult<()> {
-    use fiber::{Fiber, FiberNode};
-    use vdom::{Node, Element, Props};
-
-    let mut internals = Internals::get();
-
-    let root = Fiber::from(FiberNode {
-        vdom: Node::Element(Element::with(Props {
-            attributes:    None,
-            eventhandlers: None,
-            children:      component.into_nodes().into()
-        })),
-        dom: Some(root.into().into()),
-        parent:    None,
-        sibling:   None,
-        child:     None,
-        effect:    None,
-        alternate: internals.current_root.clone(),
-    });
-
-    internals.next_unit_of_work = Some(root.clone());
-    internals.wip_root          = Some(root.clone());
-    internals.flush_sync()?;
-
-    root.forget();
-    Ok({
-        #[cfg(feature="DEBUG")] {
-            console_log!("`render` finished")
-        }
-    })
-}
+// pub fn render(
+//     component: impl Component,
+//     root:      impl Into<web_sys::Element>
+// ) -> JSResult<()> {
+//     use fiber::{Fiber, FiberNode};
+//     use vdom::{Node, Element, Props};
+// 
+//     let mut internals = Internals::get();
+// 
+//     let root = Fiber::from(FiberNode {
+//         vdom: Node::Element(Element::with(Props {
+//             attributes:    None,
+//             eventhandlers: None,
+//             children:      component.into_nodes().into()
+//         })),
+//         dom: Some(root.into().into()),
+//         parent:    None,
+//         sibling:   None,
+//         child:     None,
+//         effect:    None,
+//         alternate: internals.current_root.clone(),
+//     });
+// 
+//     internals.next_unit_of_work = Some(root.clone());
+//     internals.wip_root          = Some(root.clone());
+//     internals.flush_sync()?;
+// 
+//     root.forget();
+//     Ok({
+//         #[cfg(feature="DEBUG")] {
+//             console_log!("`render` finished")
+//         }
+//     })
+// }
