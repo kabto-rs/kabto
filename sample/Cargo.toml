@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 kabto   = { path = ".." }
-web-sys = { version = "0.3", features = ["Window", "Document", "Element", "Text", "console"] }
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlInputElement", "Text", "console"] }
 
 [features]
 DEBUG = ["kabto/DEBUG"]

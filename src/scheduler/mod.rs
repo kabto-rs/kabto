@@ -29,10 +29,6 @@ fn work_loop(
     perform_unit_of_work: fn(Fiber, Internals)->JSResult<Option<Fiber>>,
     mut internals:        Internals,
 ) -> JSResult<()> {
-    #[cfg(feature="DEBUG")] {
-        crate::console_log!("`work_loop` called");
-    }
-
     let mut should_yield = false;
     while internals.next_unit_of_work.is_some() && !should_yield {
         internals.next_unit_of_work = perform_unit_of_work(

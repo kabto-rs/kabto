@@ -1,7 +1,7 @@
 mod attributes;
 mod eventhandlers;
 
-pub mod nodes;
+pub mod component;
 
 
 macro_rules! tag {

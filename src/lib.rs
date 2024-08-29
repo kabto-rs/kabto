@@ -20,10 +20,10 @@ mod dom;
 mod internals;
 mod util;
 
-pub use dsl::tag;
+pub use dsl::{tag, component::Component};
 pub(crate) use internals::Internals;
 
-pub use ::web_sys::{console, Text};
+pub use ::web_sys::{console, Text, Element};
 pub use ::web_sys::wasm_bindgen::{JsValue, JsCast, UnwrapThrowExt};
 pub mod event {pub use ::web_sys::{AnimationEvent, MouseEvent, PointerEvent, FocusEvent, CompositionEvent, KeyboardEvent, TouchEvent, TransitionEvent, WheelEvent, Event, UiEvent};}
 
@@ -47,9 +47,6 @@ macro_rules! console_log {
         ).unwrap())
     };
 }
-
-pub trait Component: dsl::nodes::IntoNodes {}
-impl<IN: dsl::nodes::IntoNodes> Component for IN {}
 
 pub fn render(
     nodes: impl Component,

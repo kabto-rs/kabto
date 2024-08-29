@@ -2,7 +2,7 @@ use crate::vdom::{Element, Node, Tag};
 use crate::util::Text;
 
 
-pub trait IntoNodes {
+pub trait Component {
     fn into_nodes(self) -> Nodes;
 }
 
@@ -34,17 +34,17 @@ impl Into<Vec<Node>> for Nodes {
     }
 }
 
-impl<T: Tag> IntoNodes for Element<T> {
+impl<T: Tag> Component for Element<T> {
     fn into_nodes(self) -> Nodes {
         Nodes::Some(self.into_node())
     }
 }
-impl IntoNodes for Node {
+impl Component for Node {
     fn into_nodes(self) -> Nodes {
         Nodes::Some(self)
     }
 }
-impl<IN: IntoNodes> IntoNodes for Option<IN> {
+impl<IN: Component> Component for Option<IN> {
     fn into_nodes(self) -> Nodes {
         match self {
             None    => Nodes::None,
@@ -52,15 +52,15 @@ impl<IN: IntoNodes> IntoNodes for Option<IN> {
         }
     }
 }
-impl<IN: IntoNodes> IntoNodes for Vec<IN> {
+impl<IN: Component> Component for Vec<IN> {
     fn into_nodes(self) -> Nodes {
         Nodes::Many(self.into_iter()
-            .map(IntoNodes::into_nodes)
+            .map(Component::into_nodes)
             .fold(Vec::new(), |mut vec, nodes| {nodes.join_into(&mut vec); vec})
         )
     }
 }
-impl<NC: NodeCollection> IntoNodes for NC {
+impl<NC: NodeCollection> Component for NC {
     fn into_nodes(self) -> Nodes {
         let mut collection = Vec::new();
         for nodes in self.collect() {
@@ -70,8 +70,8 @@ impl<NC: NodeCollection> IntoNodes for NC {
     }
 }
 macro_rules! TextNode {
-    ($($text:ty),*) => {$(
-        impl IntoNodes for $text {
+    ($($text:ty),+) => {$(
+        impl Component for $text {
             fn into_nodes(self) -> Nodes {
                 Nodes::Some(Node::Text(Text::from(self).into()))
             }
@@ -100,16 +100,15 @@ impl<T: Tag, Children: NodeCollection> FnOnce<Children> for Element<T> {
 }
 
 macro_rules! NodeCollection {
-    ($($node:ident),*; $n:literal) => {
-        impl<$($node: IntoNodes),*> NodeCollection for ($($node,)*) {
+    ($($node:ident),+; $n:literal) => {
+        impl<$($node: Component),+> NodeCollection for ($($node,)+) {
             fn collect(self) -> impl Iterator<Item = Nodes> {
-                let ($($node,)*) = self;
-                [$($node.into_nodes(),)*].into_iter()
+                let ($($node,)+) = self;
+                [$($node.into_nodes(),)+].into_iter()
             }
         }
     };
 }
-NodeCollection! { ; 0}
 NodeCollection! { N1; 1 }
 NodeCollection! { N1, N2; 2 }
 NodeCollection! { N1, N2, N3; 3 }
