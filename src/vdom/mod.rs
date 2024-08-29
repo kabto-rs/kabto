@@ -19,7 +19,7 @@ pub struct VElement<T: Tag> {t: PhantomData<fn()->T>,
     kind:     Kind,
     props:    Option<Props>,
     value:    Option<VText>,
-    children: Vec<VNode>,
+    children: Option<Vec<VNode>>,
 }
 
 pub(crate) enum Kind {
@@ -175,13 +175,24 @@ impl Props {
     }
 }
 
+impl VElement<()> {
+    pub(crate) fn new_text(text: impl Into<VText>) -> Self {
+        VElement {t: PhantomData,
+            kind:     Kind::Text,
+            props:    None,
+            value:    Some(text.into()),
+            children: None
+        }
+    }
+}
+
 impl<T: Tag> VElement<T> {
     pub(crate) const fn new_tag() -> Self {
         VElement {t: PhantomData,
             kind:     Kind::Tag(T::NAME),
             props:    None,
             value:    None,
-            children: Vec::new()
+            children: None
         }
     }
 
@@ -193,14 +204,37 @@ impl<T: Tag> VElement<T> {
         &self.kind
     }
 
-    pub(crate) fn props(&self) -> Option<&Props> {
-        self.props.as_ref()
-    }
-    pub(crate) fn props_mut(&mut self) -> Option<&mut Props> {
-        self.props.as_mut()
+    pub(crate) fn as_text(&self) -> Option<&str> {
+        self.value.as_deref()
     }
 
-    pub(crate) fn value(&self) -> Option<&str> {
-        self.value.as_deref()
+    pub(crate) fn children(&self) -> Option<&Vec<VNode>> {
+        self.children.as_ref()
+    }
+    pub(crate) fn children_mut(&mut self) -> &mut Vec<VNode> {
+        if self.children.is_none() {
+            self.children = Some(Vec::new())
+        }
+        unsafe {self.children.as_mut().unwrap_unchecked()}
+    }
+
+    pub(crate) fn attributes(&self) -> Option<&HashMap<&'static str, VText>> {
+        self.props.as_ref().map(|p| &*p.attributes)
+    }
+    pub(crate) fn attributes_mut(&mut self) -> &mut HashMap<&'static str, VText> {
+        if self.props.is_none() {
+            self.props = Some(Props::new())
+        }
+        unsafe {&mut self.props.as_mut().unwrap_unchecked().attributes}
+    }
+
+    pub(crate) fn eventhandlers(&self) -> Option<&HashMap<&'static str, Function>> {
+        self.props.as_ref().map(|p| &*p.eventhandlers)
+    }
+    pub(crate) fn eventhandlers_mut(&mut self) -> &mut HashMap<&'static str, Function> {
+        if self.props.is_none() {
+            self.props = Some(Props::new())
+        }
+        unsafe {&mut self.props.as_mut().unwrap_unchecked().eventhandlers}
     }
 }

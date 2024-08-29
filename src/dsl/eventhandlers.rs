@@ -13,25 +13,15 @@ macro_rules! register_eventhandlers {
     ) => {
         impl<T: Tag> VElement<T> {$(
             pub fn $handler<__>(mut self, f: impl EventHandler<web_sys::$event_object, __>) -> Self {
-                if self.props.eventhandlers.is_none() {
-                    self.props.eventhandlers = Some(Default::default())
-                }
-
-                unsafe {self.props.eventhandlers.as_mut().unwrap_unchecked()}
+                self.eventhandlers_mut()
                     .insert(stringify!($event_name), f.into_function());
-
                 self
             }
         )*}
         $(impl VElement<tag::$tag> {$(
             pub fn $handler2<__>(mut self, f: impl EventHandler<web_sys::$event_object2, __>) -> Self {
-                if self.props.eventhandlers.is_none() {
-                    self.props.eventhandlers = Some(Default::default())
-                }
-
-                unsafe {self.props.eventhandlers.as_mut().unwrap_unchecked()}
+                self.eventhandlers_mut()
                     .insert(stringify!($event_name2), f.into_function());
-
                 self
             }
         )*})*

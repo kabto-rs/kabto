@@ -1,5 +1,4 @@
 use crate::vdom::{VElement, VNode, Tag};
-use crate::util::Text;
 
 
 pub trait Component {
@@ -73,27 +72,17 @@ macro_rules! TextNode {
     ($($text:ty),+) => {$(
         impl Component for $text {
             fn into_nodes(self) -> Nodes {
-                Nodes::Some(VNode::Text(Text::from(self).into()))
+                Nodes::Some(VElement::new_text(self).into_node())
             }
         }
     )*};
 } TextNode! { &'static str, String, u8, usize, i32 }
 
-impl<Children: NodeCollection> FnOnce<Children> for VNode {
-    type Output = VNode;
-    extern "rust-call" fn call_once(self, children: Children) -> Self::Output {
-        let VNode::Element(mut element) = self else {unreachable!()};
-        for nodes in children.collect() {
-            nodes.join_into(&mut element.props.children);
-        }
-        VNode::Element(element)
-    }
-}
 impl<T: Tag, Children: NodeCollection> FnOnce<Children> for VElement<T> {
     type Output = VNode;
     extern "rust-call" fn call_once(mut self, children: Children) -> Self::Output {
         for nodes in children.collect() {
-            nodes.join_into(&mut self.props.children);
+            nodes.join_into(self.children_mut());
         }
         self.into_node()
     }

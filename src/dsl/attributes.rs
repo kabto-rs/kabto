@@ -1,5 +1,4 @@
-use crate::vdom::{VElement, Tag, tag};
-use crate::util::Text;
+use crate::vdom::{VElement, VText, Tag, tag};
 
 
 macro_rules! keyvalue {
@@ -20,22 +19,16 @@ macro_rules! keyvalue {
     };
 
     (@ $name:ident) => {
-        pub fn $name(mut self, value: impl Into<Text>) -> Self {
-            if self.props.attributes.is_none() {
-                self.props.attributes = Some(Default::default())
-            }
-            unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
+        pub fn $name(mut self, value: impl Into<VText>) -> Self {
+            self.attributes_mut()
                 .insert(stringify!($name), value.into());
             self
         }
     };
     (@ $name:ident for $attr_name:literal) => {
-        pub fn $name(mut self, value: impl Into<Text>) -> Self {
-            if self.props.attributes.is_none() {
-                self.props.attributes = Some(Default::default())
-            }
-            unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
-                .insert($attr_name, value.into());
+        pub fn $name(mut self, value: impl Into<VText>) -> Self {
+            self.attributes_mut()
+                .insert(stringify!($attr_name), value.into());
             self
         }
     };
@@ -319,21 +312,15 @@ macro_rules! boolean {
 
     (@ $name:ident) => {
         pub fn $name(mut self) -> Self {
-            if self.props.attributes.is_none() {
-                self.props.attributes = Some(Default::default())
-            }
-            unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
+            self.attributes_mut()
                 .insert(stringify!($name), "".into());
             self
         }
     };
     (@ $name:ident for $attr_name:literal) => {
         pub fn $name(mut self) -> Self {
-            if self.props.attributes.is_none() {
-                self.props.attributes = Some(Default::default())
-            }
-            unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
-                .insert($attr_name, "".into());
+            self.attributes_mut()
+                .insert(stringify!($attr_name), "".into());
             self
         }
     };
@@ -443,21 +430,15 @@ macro_rules! enumerated {
     ) => {
         impl<T: Tag> VElement<T> {$(
             $(pub fn $method(mut self) -> Self {
-                if self.props.attributes.is_none() {
-                    self.props.attributes = Some(Default::default())
-                }
-                unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
-                    .insert($name, $value.into());
+                self.attributes_mut()
+                    .insert(stringify!($name), $value.into());
                 self
             })*
         )*}
         $(impl VElement<tag::$tag> {$(
             $(pub fn $method2(mut self) -> Self {
-                if self.props.attributes.is_none() {
-                    self.props.attributes = Some(Default::default())
-                }
-                unsafe {self.props.attributes.as_mut().unwrap_unchecked()}
-                    .insert($name2, $value2.into());
+                self.attributes_mut()
+                    .insert(stringify!($name2), $value2.into());
                 self
         })*)*})*
     };

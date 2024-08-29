@@ -8,5 +8,7 @@ pub(crate) struct Context {
 }
 
 pub(crate) enum Effect {
-    CreateChild { it: VDOM, parent: DOM }
+    CreateChild { new_child: VDOM, parent: DOM },
+    Delete(DOM),
+    UpdateContent { target: DOM, goal: VDOM },
 }
