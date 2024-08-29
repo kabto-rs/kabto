@@ -1,5 +1,5 @@
 use crate::{scheduler, JSResult};
-use crate::fiber::Fiber;
+use crate::fiber::{Effect, Fiber};
 use crate::util::RcX;
 use std::sync::LazyLock;
 
@@ -29,7 +29,7 @@ const _: () = {
                     next_unit_of_work: None,
                     current_root:      None,
                     wip_root:          None,
-                    deletions:         None,
+                    deletions:         vec![],
                     wip_fiber:         None,
                     hook_index:        None,
                 }));
@@ -40,19 +40,56 @@ const _: () = {
 
 impl Internals {
     fn commit_root(mut self) {
-        fn commit_work(fiber: Option<Fiber>) {            
-            if let Some(fiber) = fiber {
-                use web_sys::wasm_bindgen::UnwrapThrowExt;
-                fiber.parent().unwrap().dom().append_child(fiber.dom())
-                    .expect_throw("failed to appendChild");
-                commit_work(fiber.child());
-                commit_work(fiber.sibling());
-            }
-        }
-
         if self.wip_root.is_none() {
             return
         }
+
+        fn commit_work(fiber: Option<Fiber>) {    
+            use web_sys::wasm_bindgen::UnwrapThrowExt;
+
+            let Some(fiber) = fiber else {return};
+
+            let parent = fiber.parent().unwrap();
+            let parent = parent.dom();
+            match fiber.effect {
+                None => (),
+                Some(Effect::Create) => {
+                    parent.append_child(fiber.dom()).unwrap_throw();
+                }
+                Some(Effect::Delete) => {
+                    parent.remove_child(fiber.dom()).unwrap_throw();
+                }
+                Some(Effect::Update) => {
+                    if let Some(old_props) = fiber.alternate.as_ref().expect_throw("`alternate` is unexpectedly None")
+                        .vdom.props()
+                    {
+                        if let Some(attrs) = &old_props.attributes {
+                            for (name, _) in &**attrs {
+                                fiber.dom().set_attribute(name, "");
+                            }
+                        }
+                        if let Some(handlers) = &old_props.eventhandlers {
+                            for (event, _) in &**handlers {
+                                fiber.dom().remove_event_listener_with_callback(
+                                    event,
+                                    listener
+                                ).unwrap_throw();
+                            }
+                        }
+                    }
+
+                    if let Some(new_props) = fiber
+                        .vdom.props()
+                    {
+
+                    }
+                }
+            }
+            commit_work(fiber.child());
+            commit_work(fiber.sibling());
+        }
+
+        self.deletions.iter().cloned().map(Some).for_each(commit_work);
         commit_work(self.wip_root.as_ref().unwrap().child());
         self.current_root = self.wip_root.clone();
         self.wip_root = None
@@ -75,7 +112,7 @@ mod internal {
         pub(crate) next_unit_of_work: Option<Fiber>,
         pub(crate) current_root:      Option<Fiber>,
         pub(crate) wip_root:          Option<Fiber>,
-        pub(crate) deletions:         Option<(/* todo */)>,
+        pub(crate) deletions:         Vec<Fiber>,
         pub(crate) wip_fiber:         Option<(/* todo */)>,
         pub(crate) hook_index:        Option<(/* todo */)>,
     }

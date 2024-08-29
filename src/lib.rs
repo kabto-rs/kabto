@@ -69,6 +69,7 @@ pub fn render(
         parent:    None,
         sibling:   None,
         child:     None,
+        effect:    None,
         alternate: internals.current_root.clone(),
     });
 

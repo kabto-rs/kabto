@@ -11,6 +11,12 @@ pub enum Node {
     Element(Element<()>),
 }
 
+#[derive(PartialEq)]
+pub(crate) enum NodeKind {
+    Text,
+    Element(&'static str)
+}
+
 #[derive(Clone)]
 pub struct Element<T: Tag> {t: PhantomData<fn()->T>,
     pub(crate) tag:   &'static str,
@@ -189,9 +195,22 @@ impl<T: Tag> Element<T> {
 }
 
 impl Node {
+    pub(crate) fn kind(&self) -> NodeKind {
+        match self {
+            Self::Element(e) => NodeKind::Element(e.tag),
+            Self::Text(_)    => NodeKind::Text
+        }
+    }
+
     pub(crate) fn props(&self) -> Option<&Props> {
         match self {
             Self::Element(e) => Some(&e.props),
+            Self::Text(_)    => None
+        }
+    }
+    pub(crate) fn props_mut(&mut self) -> Option<&mut Props> {
+        match self {
+            Self::Element(e) => Some(&mut e.props),
             Self::Text(_)    => None
         }
     }
