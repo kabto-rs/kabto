@@ -1,4 +1,4 @@
-use crate::JSResult;
+use crate::JsResult;
 use std::future::Future;
 use web_sys::wasm_bindgen::{closure::Closure, JsCast, JsValue, UnwrapThrowExt};
 use web_sys::js_sys::Function;
@@ -25,9 +25,9 @@ const _: () = {
         }
     }
 
-    impl<F, E> EventHandler<E, fn(E)->JSResult<()>> for F
+    impl<F, E> EventHandler<E, fn(E)->JsResult<()>> for F
     where
-        F: Fn(E)->JSResult<()> + 'static,
+        F: Fn(E)->JsResult<()> + 'static,
         E: JsCast + Into<web_sys::Event>
     {
         fn into_closure(self) -> Closure<dyn Fn(JsValue)> {
@@ -50,10 +50,10 @@ const _: () = {
         }
     }
 
-    impl<F, Fut, E> EventHandler<E, fn(E)->(JSResult<()>,)> for F
+    impl<F, Fut, E> EventHandler<E, fn(E)->(JsResult<()>,)> for F
     where
         F:   Fn(E) -> Fut + 'static,
-        Fut: Future<Output = JSResult<()>> + 'static,
+        Fut: Future<Output = JsResult<()>> + 'static,
         E:   JsCast + Into<web_sys::Event>
     {
         fn into_closure(self) -> Closure<dyn Fn(JsValue)> {

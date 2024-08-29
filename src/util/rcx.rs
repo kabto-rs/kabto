@@ -1,4 +1,4 @@
-use crate::{JSResult, JsCast};
+use crate::{JsResult, JsCast};
 use std::rc::{Rc, Weak};
 use std::cell::UnsafeCell;
 
@@ -48,7 +48,7 @@ impl<T> Clone for RcX<T> {
 }
 
 impl<T> WeakX<T> {
-    pub(crate) fn upgrade(&self) -> JSResult<RcX<T>> {
+    pub(crate) fn upgrade(&self) -> JsResult<RcX<T>> {
         match self.0.upgrade() {
             Some(rc) => Ok(RcX(rc)),
             None     => Err(::web_sys::Text::new_with_data("invalid `Weak`")?.unchecked_into())

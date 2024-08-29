@@ -9,6 +9,12 @@ impl std::ops::Deref for DOM {
         &self.0
     }
 }
+impl AsRef<web_sys::Node> for DOM {
+    fn as_ref(&self) -> &web_sys::Node {
+        use web_sys::wasm_bindgen::JsCast;
+        self.0.unchecked_ref()
+    }
+}
 
 impl From<web_sys::Element> for DOM {
     fn from(value: web_sys::Element) -> Self {

@@ -13,6 +13,7 @@
 )]
 
 mod context;
+mod fiber;
 mod dsl;
 mod vdom;
 mod dom;
@@ -24,7 +25,7 @@ pub use ::web_sys::{console, Text, Element};
 pub use ::web_sys::wasm_bindgen::{JsValue, JsCast, UnwrapThrowExt};
 pub mod event {pub use ::web_sys::{AnimationEvent, MouseEvent, PointerEvent, FocusEvent, CompositionEvent, KeyboardEvent, TouchEvent, TransitionEvent, WheelEvent, Event, UiEvent};}
 
-pub type JSResult<T> = Result<T, JsValue>;
+pub type JsResult<T> = Result<T, JsValue>;
 
 pub fn window() -> ::web_sys::Window {
     use web_sys::wasm_bindgen::UnwrapThrowExt;
@@ -48,7 +49,7 @@ macro_rules! console_log {
 // pub fn render(
 //     component: impl Component,
 //     root:      impl Into<web_sys::Element>
-// ) -> JSResult<()> {
+// ) -> JsResult<()> {
 //     use fiber::{Fiber, FiberNode};
 //     use vdom::{Node, Element, Props};
 // 

@@ -1,5 +1,5 @@
 use super::Context;
-use crate::{dom::DOM, JSResult, JsCast};
+use crate::{dom::DOM, JsResult, JsCast};
 use crate::vdom::{VNode, VDOM};
 
 
@@ -10,25 +10,11 @@ pub(crate) enum Effect {
 }
 
 impl Effect {
-    pub(crate) fn run(self, ctx: &Context) -> JSResult<()> {
+    pub(crate) fn run(self, ctx: &Context) -> JsResult<()> {
         Ok(match self {
             Effect::CreateChild { new_child, parent } => {
-                match &*new_child {
-                    VNode::Text(text) => {
-                        let node = ctx.document.create_text_node(text);
-                        parent.append_child(node.unchecked_ref())?;
-                    }
-                    VNode::Element(element) => {
-                        let node = ctx.document.create_element(element.tag())?;
-                        for (name, value) in element.attributes().into_iter().flatten() {
-                            node.set_attribute(name, value)?;
-                        }
-                        for (event, listener) in element.eventhandlers().into_iter().flatten() {
-                            node.add_event_listener_with_callback(event, listener)?;
-                        }
-                        parent.append_child(node.unchecked_ref())?;
-                    }
-                }
+                let dom = new_child.create_dom(ctx)?;
+                parent.append_child(&dom)?;
             }
             Effect::Delete(dom) => {
                 dom.remove()

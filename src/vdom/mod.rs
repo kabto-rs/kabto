@@ -4,7 +4,7 @@ pub(crate) use eventhandler::EventHandler;
 mod text;
 pub(crate) use text::VText;
 
-use crate::util::RcX;
+use crate::{context::Context, dom::DOM, util::RcX, JsResult, JsCast};
 use std::{collections::HashMap, marker::PhantomData};
 use web_sys::js_sys::Function;
 
@@ -238,6 +238,27 @@ impl VNode {
         match self {
             Self::Element(e) => Kind::Element(e.tag),
             Self::Text(_)    => Kind::Text
+        }
+    }
+}
+
+impl VDOM {
+    pub(crate) fn create_dom(&self, ctx: &Context) -> JsResult<DOM> {
+        match &**self {
+            VNode::Text(text) => {
+                let node = ctx.document().create_text_node(text);
+                Ok(node.into())
+            }
+            VNode::Element(element) => {
+                let node = ctx.document().create_element(element.tag())?;
+                for (name, value) in element.attributes().into_iter().flatten() {
+                    node.set_attribute(name, value)?;
+                }
+                for (event, listener) in element.eventhandlers().into_iter().flatten() {
+                    node.add_event_listener_with_callback(event, listener)?;
+                }
+                Ok(node.into())
+            }
         }
     }
 }
