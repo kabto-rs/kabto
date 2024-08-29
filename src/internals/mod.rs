@@ -47,41 +47,49 @@ impl Internals {
         fn commit_work(fiber: Option<Fiber>) {    
             use web_sys::wasm_bindgen::UnwrapThrowExt;
 
-            let Some(fiber) = fiber else {return};
+            let Some(mut fiber) = fiber else {return};
 
-            let parent = fiber.parent().unwrap();
-            let parent = parent.dom();
+            let mut parent = fiber.parent().unwrap();
+            let parent = parent.dom_mut();
             match fiber.effect {
                 None => (),
                 Some(Effect::Create) => {
-                    parent.append_child(fiber.dom()).unwrap_throw();
+                    parent.append_child(fiber.dom());
                 }
                 Some(Effect::Delete) => {
-                    parent.remove_child(fiber.dom()).unwrap_throw();
+                    parent.remove_child(fiber.dom());
                 }
                 Some(Effect::Update) => {
                     if let Some(old_props) = fiber.alternate.as_ref().expect_throw("`alternate` is unexpectedly None")
-                        .vdom.props()
+                        .vdom.clone()
+                        .props()
                     {
                         if let Some(attrs) = &old_props.attributes {
                             for (name, _) in &**attrs {
-                                fiber.dom().set_attribute(name, "");
+                                fiber.dom_mut().remove_attribute(name);
                             }
                         }
                         if let Some(handlers) = &old_props.eventhandlers {
-                            for (event, _) in &**handlers {
-                                fiber.dom().remove_event_listener_with_callback(
-                                    event,
-                                    listener
-                                ).unwrap_throw();
+                            for (event, listener) in &**handlers {
+                                fiber.dom_mut().remove_event_listener(event, listener);
                             }
                         }
                     }
 
                     if let Some(new_props) = fiber
-                        .vdom.props()
+                        .vdom.clone()
+                        .props()
                     {
-
+                        if let Some(attrs) = &new_props.attributes {
+                            for (name, value) in &**attrs {
+                                fiber.dom_mut().set_attribute(name, value);
+                            }
+                        }
+                        if let Some(handlers) = &new_props.eventhandlers {
+                            for (event, listener) in &**handlers {
+                                fiber.dom_mut().add_event_listener(event, listener);
+                            }
+                        }
                     }
                 }
             }

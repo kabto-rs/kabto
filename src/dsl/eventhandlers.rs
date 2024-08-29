@@ -18,7 +18,7 @@ macro_rules! register_eventhandlers {
                 }
 
                 unsafe {self.props.eventhandlers.as_mut().unwrap_unchecked()}
-                    .insert(stringify!($event_name), f.into_eventhandler());
+                    .insert(stringify!($event_name), f.into_eventhandler().into());
 
                 self
             }
@@ -30,7 +30,7 @@ macro_rules! register_eventhandlers {
                 }
 
                 unsafe {self.props.eventhandlers.as_mut().unwrap_unchecked()}
-                    .insert(stringify!($event_name2), f.into_eventhandler());
+                    .insert(stringify!($event_name2), f.into_eventhandler().into());
 
                 self
             }

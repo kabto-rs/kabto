@@ -18,20 +18,17 @@ impl From<String> for Text {
         Self(Rc::new(value.into()))
     }
 }
-
 impl From<&'static str> for Text {
     fn from(value: &'static str) -> Self {
         Self(Rc::new(value.into()))
     }
 }
-
 impl From<bool> for Text {
     fn from(value: bool) -> Self {
         Self(Rc::new((if value {"true"} else {"false"}).into()))
     }
 }
-
-macro_rules! integer_value {
+macro_rules! from_integer {
     ($($t:ty)*) => {$(
         impl From<$t> for Text {
             fn from(value: $t) -> Self {
@@ -39,7 +36,7 @@ macro_rules! integer_value {
             }
         }
     )*};
-} integer_value! { u8 usize i32 }
+} from_integer! { u8 usize i32 }
 
 #[cfg(feature="DEBUG")]
 const _: () = {

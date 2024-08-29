@@ -1,9 +1,8 @@
 pub(crate) use crate::util::{RcX, WeakX};
-
 use crate::internals::Internals;
-use crate::{document, JSResult, JsCast, UnwrapThrowExt};
+use crate::{document, JSResult, UnwrapThrowExt};
 use crate::vdom::{Node as VDOM, NodeKind, Props};
-use ::web_sys::Node as DOM;
+use crate::dom::DOM;
 
 
 #[derive(Clone)]
@@ -211,6 +210,9 @@ impl FiberNode {
     pub(crate) fn dom(&self) -> &DOM {
         self.dom.as_ref().expect_throw("invalid `dom`")
     }
+    pub(crate) fn dom_mut(&mut self) -> &mut DOM {
+        self.dom.as_mut().expect_throw("invalid `dom`")
+    }
 
     fn kind(&self) -> NodeKind {
         self.vdom.kind()
@@ -220,7 +222,7 @@ impl FiberNode {
         match &self.vdom {
             VDOM::Text(text) => {
                 let text = document().create_text_node(&text);
-                Ok(text.unchecked_into())
+                Ok(DOM::Text(text))
             }
             VDOM::Element(e) => {
                 let element = document().create_element(e.tag)?;
@@ -231,11 +233,10 @@ impl FiberNode {
                 }
                 if let Some(eventhandlers) = &e.props.eventhandlers {
                     for (event, handler) in &**eventhandlers {
-                        let handler = handler.clone().into_wasm_closure();
-                        element.add_event_listener_with_callback(event, handler.into_js_value().unchecked_ref())?;
+                        element.add_event_listener_with_callback(event, handler)?;
                     }
                 }
-                Ok(element.unchecked_into())
+                Ok(DOM::Element(element))
             }
         }
     }

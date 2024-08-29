@@ -16,6 +16,7 @@ mod dsl;
 mod fiber;
 mod scheduler;
 mod vdom;
+mod dom;
 mod internals;
 mod util;
 
@@ -52,7 +53,7 @@ impl<IN: dsl::nodes::IntoNodes> Component for IN {}
 
 pub fn render(
     nodes: impl Component,
-    root:  impl Into<web_sys::Node>
+    root:  impl Into<web_sys::Element>
 ) -> JSResult<()> {
     use fiber::{Fiber, FiberNode};
     use vdom::{Node, Element, Props};
@@ -65,7 +66,7 @@ pub fn render(
             eventhandlers: None,
             children:      nodes.into_nodes().into()
         })),
-        dom: Some(root.into()),
+        dom: Some(root.into().into()),
         parent:    None,
         sibling:   None,
         child:     None,

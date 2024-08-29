@@ -1,8 +1,9 @@
 mod eventhandler;
-pub(crate) use eventhandler::{eventHandler, EventHandler};
+pub(crate) use eventhandler::EventHandler;
 
 use crate::util::Text;
 use std::{collections::HashMap, marker::PhantomData};
+use web_sys::js_sys::Function;
 
 
 #[derive(Clone)]
@@ -26,7 +27,7 @@ pub struct Element<T: Tag> {t: PhantomData<fn()->T>,
 #[derive(Clone)]
 pub struct Props {
     pub(crate) attributes:    Option<Box<HashMap<&'static str, Text>>>,
-    pub(crate) eventhandlers: Option<Box<HashMap<&'static str, eventHandler>>>,
+    pub(crate) eventhandlers: Option<Box<HashMap<&'static str, Function>>>,
     pub(crate) children:      Vec<Node>,
 }
 

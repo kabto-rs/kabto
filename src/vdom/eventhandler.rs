@@ -1,5 +1,6 @@
 use std::{future::Future, rc::Rc};
 use web_sys::wasm_bindgen::{closure::Closure, JsCast, JsValue};
+use web_sys::js_sys::Function;
 use wasm_bindgen_futures::spawn_local;
 
 
@@ -7,7 +8,11 @@ use wasm_bindgen_futures::spawn_local;
 pub struct eventHandler {
     handler: Rc<dyn Fn(JsValue)>
 }
-
+impl Into<Function> for eventHandler {
+    fn into(self) -> Function {
+        self.into_wasm_closure().into_js_value().unchecked_into()
+    }
+}
 impl eventHandler {
     pub(crate) fn into_wasm_closure(self) -> Closure<dyn Fn(JsValue)> {
         Closure::new(move |js_value| (&*self.handler)(js_value))
