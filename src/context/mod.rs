@@ -32,7 +32,13 @@ impl Context {
 
     pub(crate) fn commit(&self) {
         match (&self.current_fiber, &self.previous_fiber) {
-            todo!()
+            (None, _) => (),
+            (Some(curr), None) => {
+                // just build DOM
+            }
+            (Some(curr), Some(prev)) => {
+                // detect diffs and apply updates
+            }
         }
     }
 }
