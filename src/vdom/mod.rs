@@ -18,12 +18,22 @@ impl std::ops::Deref for VDOM {
         &self.0
     }
 }
+impl From<VNode> for VDOM {
+    fn from(vnode: VNode) -> Self {
+        Self(vnode)
+    }
+}
 
 #[derive(Clone)]
 #[allow(private_interfaces)]
 pub enum VNode {
     Text(RcX<VText>),
     Element(RcX<VElement<()>>),
+}
+impl From<VDOM> for VNode {
+    fn from(vdom: VDOM) -> Self {
+        vdom.0
+    }
 }
 
 pub struct VElement<T: Tag> {t: PhantomData<fn()->T>,
@@ -239,6 +249,13 @@ impl VNode {
         match self {
             Self::Element(e) => Kind::Element(e.tag),
             Self::Text(_)    => Kind::Text
+        }
+    }
+
+    pub(crate) fn children(&self) -> Option<&Vec<VNode>> {
+        match self {
+            Self::Element(e) => e.children(),
+            Self::Text(_)    => None
         }
     }
 }

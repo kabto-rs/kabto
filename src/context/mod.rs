@@ -8,8 +8,8 @@ use crate::vdom::VDOM;
 
 
 pub(crate) struct Context {
-    current_fiber:  Option<VDOM>,
-    previous_fiber: Option<VDOM>,
+    current_fiber:  Option<Fiber>,
+    previous_fiber: Option<Fiber>,
     document:       web_sys::Document,
     effects:        Vec<Effect>,
 }
@@ -30,7 +30,7 @@ impl Context {
 
     pub(crate) fn insert(&mut self, vdom: VDOM) {
         std::mem::swap(&mut self.current_fiber, &mut self.previous_fiber);
-        self.current_fiber = Some(vdom)
+        self.current_fiber = Some(Fiber::from(vdom))
     }
 
     pub(crate) fn commit(&self) {
