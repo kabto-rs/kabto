@@ -36,10 +36,10 @@ impl FiberNode {
             let mut child_fnode = FiberNode::rcx_from(child_vnode);
             if node.child.is_none() {
                 node.child = Some(child_fnode.clone());
-                child_fnode.parent = Some(node.downgrade())
+                child_fnode.parent = Some(node.downgrade());
             } else {
                 prev_sibling.sibling = Some(child_fnode.clone());
-                prev_sibling = child_fnode
+                prev_sibling = child_fnode;
             }
         }
 
