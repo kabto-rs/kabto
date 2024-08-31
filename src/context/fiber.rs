@@ -20,7 +20,6 @@ impl From<VDOM> for Fiber {
         Self(FiberNode::rcx_from(VNode::from(vdom)))
     }
 }
-
 impl FiberNode {
     fn rcx_from(vnode: VNode) -> RcX<FiberNode> {
         let mut node = RcX::new(FiberNode {
@@ -32,8 +31,8 @@ impl FiberNode {
         });
 
         let mut prev_sibling: RcX<FiberNode> = node.clone();
-        for child_vnode in vnode.children().cloned().into_iter().flatten() {
-            let mut child_fnode = FiberNode::rcx_from(child_vnode);
+        for child_vnode in vnode.children().into_iter().flatten() {
+            let mut child_fnode = FiberNode::rcx_from(child_vnode.clone());
             if node.child.is_none() {
                 node.child = Some(child_fnode.clone());
                 child_fnode.parent = Some(node.downgrade());
@@ -44,5 +43,11 @@ impl FiberNode {
         }
 
         node
+    }
+}
+
+impl Fiber {
+    pub(super) fn traverse(&self) -> Vec<super::Effect> {
+        let mut ;
     }
 }
