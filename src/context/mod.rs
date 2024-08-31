@@ -1,6 +1,9 @@
 mod effect;
 use effect::Effect;
 
+mod fiber;
+use fiber::Fiber;
+
 use crate::vdom::VDOM;
 
 

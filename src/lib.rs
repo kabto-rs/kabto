@@ -13,7 +13,6 @@
 )]
 
 mod context;
-mod fiber;
 mod dsl;
 mod vdom;
 mod dom;

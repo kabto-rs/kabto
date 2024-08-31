@@ -4,7 +4,7 @@ pub(crate) use eventhandler::EventHandler;
 mod text;
 pub(crate) use text::VText;
 
-use crate::{context::Context, dom::DOM, util::RcX, JsResult, JsCast};
+use crate::{context::Context, dom::DOM, util::RcX, JsResult};
 use std::{collections::HashMap, marker::PhantomData};
 use web_sys::js_sys::Function;
 
@@ -20,6 +20,7 @@ impl std::ops::Deref for VDOM {
 }
 
 #[derive(Clone)]
+#[allow(private_interfaces)]
 pub enum VNode {
     Text(RcX<VText>),
     Element(RcX<VElement<()>>),
