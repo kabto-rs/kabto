@@ -5,13 +5,12 @@ edition       = "2021"
 authors       = ["kanarus <kanarus786@gmail.com>"]
 documentation = "https://docs.rs/kabto"
 homepage      = "https://crates.io/crates/kabto"
-repository    = "https://github.com/kana-rus/kabto"
+repository    = "https://github.com/kanto-rs/kabto"
 readme        = "README.md"
 license       = "MIT"
-description   = ""
-keywords      = []
-categories    = []
-
+description   = "A macro-free Web UI framework for Rust"
+keywords      = ["macro-free", "frontend", "web", "ui", "wasm"]
+categories    = ["web-programming"]
 
 [dependencies.wasm-bindgen-futures]
 version  = "0.4"
@@ -42,7 +41,6 @@ features = [
     # currently activate
     "IdleDeadline",
 ]
-
 
 [features]
 
