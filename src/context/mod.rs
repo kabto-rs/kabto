@@ -19,8 +19,8 @@ impl Context {
         Self {
             current_fiber:  None,
             previous_fiber: None,
-            document:      crate::document(),
-            effects:       Vec::new()
+            document:       crate::document(),
+            effects:        Vec::new()
         }
     }
 
@@ -30,7 +30,7 @@ impl Context {
 
     pub(crate) fn insert(&mut self, vdom: VDOM) {
         std::mem::swap(&mut self.current_fiber, &mut self.previous_fiber);
-        self.current_fiber = Some(Fiber::from(vdom))
+        self.current_fiber = Some(Fiber::new(vdom))
     }
 
     pub(crate) fn commit(&self) {

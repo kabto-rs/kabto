@@ -1,5 +1,5 @@
 use super::Context;
-use crate::{dom::DOM, JsResult, JsCast};
+use crate::{dom::DOM, JsResult};
 use crate::vdom::{VNode, VDOM};
 
 

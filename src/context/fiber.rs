@@ -1,5 +1,7 @@
-use crate::vdom::VNode;
-use crate::{dom::DOM, vdom::VDOM};
+use super::{Context, Effect};
+use crate::JsResult;
+use crate::dom::DOM;
+use crate::vdom::{VDOM, VNode};
 use crate::util::{RcX, WeakX};
 
 
@@ -15,8 +17,8 @@ struct FiberNode {
     child:   Option<RcX<FiberNode>>,
 }
 
-impl From<VDOM> for Fiber {
-    fn from(vdom: VDOM) -> Self {
+impl Fiber {
+    pub fn new(vdom: VDOM) -> Self {
         Self(FiberNode::rcx_from(VNode::from(vdom)))
     }
 }
@@ -47,7 +49,19 @@ impl FiberNode {
 }
 
 impl Fiber {
-    pub(super) fn traverse(&self) -> Vec<super::Effect> {
-        let mut ;
+    pub(super) fn traverse(&mut self, ctx: &Context) -> JsResult<Vec<super::Effect>> {
+        let mut effects = vec![];
+
+        let mut prev_target = ctx.previous_fiber.as_ref().map(|f| f.0.clone());
+        let mut target  = &mut self.0;
+        {
+            if target.dom.is_none() {
+                target.dom = Some(target.vdom.create_dom(ctx)?)
+            }
+
+
+        }
+
+        Ok(effects)
     }
 }
